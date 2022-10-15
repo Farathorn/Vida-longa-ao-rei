@@ -7,9 +7,9 @@ namespace VLAR.Comum
 {
     public class Rei : Peca
     {
-        public Rei(Tabuleiro Tabuleiro, byte ID, Posicao Posicao) : base(Tabuleiro, ID, Posicao)
+        public Rei(byte ID, Posicao Posicao) : base(ID, Posicao)
         {
-            
+
         }
 
         public override bool Mover(Direcao sentido, int quanto)
