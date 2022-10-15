@@ -1,10 +1,10 @@
 ﻿using System;
 
-namespace Vida_longa_ao_rei
+namespace VLAR
 {
     class Program
     {
-        static void Main(string[] args)
+        static void Main (string[] args)
         {
             Console.WriteLine("Hello World!");
         }
