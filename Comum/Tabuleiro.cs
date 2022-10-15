@@ -22,7 +22,7 @@ namespace VLAR.Comum
                 casas[i] = new List<Casa>(largura);
                 for (byte j = 0; j < largura; j++)
                 {
-                    casas[i][j] = new Casa(new Tuple<byte, byte>(i, j));
+                    casas[i][j] = new Casa(new Posicao(i, j));
                 }
             }
         }
@@ -32,8 +32,8 @@ namespace VLAR.Comum
             if (pecas.Count == limitePecas) return false;
 
             pecas.Add(nova);
-            casas[nova.Coordenada.Item1][nova.Coordenada.Item2].condicao = Casa.Condicao.Ocupada;
-            casas[nova.Coordenada.Item1][nova.Coordenada.Item2].Ocupante = nova;
+            casas[nova.Posicao.x][nova.Posicao.y].condicao = Casa.Condicao.Ocupada;
+            casas[nova.Posicao.x][nova.Posicao.y].Ocupante = nova;
 
             return true;
         }
@@ -41,7 +41,7 @@ namespace VLAR.Comum
 
     public class Casa
     {
-        public Tuple<byte, byte> Coordenada { get; private set; }
+        public Posicao Coordenada { get; private set; }
         public enum Condicao
         {
             Ocupada,
@@ -51,7 +51,7 @@ namespace VLAR.Comum
         public Condicao condicao { get; set; } = Condicao.Desocupada;
         public Peca? Ocupante { get; set; } = null;
 
-        public Casa(Tuple<byte, byte> Coordenada)
+        public Casa(Posicao Coordenada)
         {
             this.Coordenada = Coordenada;
         }

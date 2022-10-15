@@ -9,7 +9,7 @@ namespace VLAR.Comum
     {
         private Tabuleiro Tabuleiro { get; set; }
         private byte ID { get; set; }
-        public Tuple<byte, byte> Coordenada { get; private set; }
+        public Posicao Posicao { get; private set; }
 
         public enum Direcao
         {
@@ -19,12 +19,12 @@ namespace VLAR.Comum
             Baixo
         }
 
-        public Peca(Tabuleiro Tabuleiro, byte ID, Tuple<byte, byte> Coordenada)
+        public Peca(Tabuleiro Tabuleiro, byte ID, Posicao Posicao)
         {
             this.Tabuleiro = Tabuleiro;
 
             this.ID = ID;
-            this.Coordenada = Coordenada;
+            this.Posicao = Posicao;
         }
 
         public bool Mover(Direcao sentido, byte quanto)
@@ -32,23 +32,25 @@ namespace VLAR.Comum
             List<List<Casa>> casas = Tabuleiro.casas;
             if (sentido is Direcao.Cima || sentido is Direcao.Baixo)
             {
-                var novaCasa = casas[Coordenada.Item1][Coordenada.Item2 + quanto];
+                var novaCasa = casas[Posicao.x][Posicao.y + quanto];
 
                 if (novaCasa.condicao is Casa.Condicao.Desocupada)
                 {
                     novaCasa.condicao = Casa.Condicao.Ocupada;
                     novaCasa.Ocupante = this;
+                    Posicao = novaCasa.Coordenada;
                 }
                 else return false;
             }
             else
             {
-                var novaCasa = casas[Coordenada.Item1 + quanto][Coordenada.Item2];
+                var novaCasa = casas[Posicao.x + quanto][Posicao.y];
 
                 if (novaCasa.condicao is Casa.Condicao.Desocupada)
                 {
                     novaCasa.condicao = Casa.Condicao.Ocupada;
                     novaCasa.Ocupante = this;
+                    Posicao = novaCasa.Coordenada;
                 }
                 else return false;
             }
