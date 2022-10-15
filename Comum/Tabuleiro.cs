@@ -62,11 +62,20 @@ namespace VLAR.Comum
             Desocupada
         }
 
+        public enum Tipo
+        {
+            Comum,
+            Trono,
+            Refugio
+        }
+
+        public Tipo tipo { get; set; }
         public Condicao condicao { get; set; } = Condicao.Desocupada;
         public Peca? Ocupante { get; set; } = null;
 
-        public Casa(Posicao Coordenada)
+        public Casa(Posicao Coordenada, Tipo tipo = Tipo.Comum)
         {
+            this.tipo = tipo;
             this.Coordenada = Coordenada;
         }
     }
