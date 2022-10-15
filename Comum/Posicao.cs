@@ -35,4 +35,12 @@ namespace VLAR.Comum
             return new Posicao(a.x + b.x, a.y + b.y);
         }
     }
+
+    public enum Direcao
+    {
+        Cima,
+        Esquerda,
+        Direita,
+        Baixo
+    }
 }
