@@ -22,10 +22,8 @@ namespace VLAR.Comum
         protected byte ID { get; set; }
         public Posicao Posicao { get; protected set; }
 
-        public Peca(Tabuleiro Tabuleiro, byte ID, Posicao Posicao)
+        public Peca(byte ID, Posicao Posicao)
         {
-            this.Tabuleiro = Tabuleiro;
-
             this.ID = ID;
             this.Posicao = Posicao;
         }
