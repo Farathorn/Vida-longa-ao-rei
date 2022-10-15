@@ -108,6 +108,7 @@ namespace Arvores
         public T Remover (long valor)
         {
             No<T> removendo = BuscaLarga(valor, raiz);
+            if (removendo is null) throw new ArgumentException("Valor não existe na árvore.");
             removendo.Pai.Filhos.Remove(removendo);
             tamanho--;
             return removendo.Objeto;
