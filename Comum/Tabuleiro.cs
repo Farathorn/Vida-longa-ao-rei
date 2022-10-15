@@ -62,6 +62,13 @@ namespace VLAR.Comum
             Desocupada
         }
 
+        public enum Tipo
+        {
+            Comum,
+            Trono,
+            Refugio
+        }
+
         public Condicao condicao { get; set; } = Condicao.Desocupada;
         public Peca? Ocupante { get; set; } = null;
 
