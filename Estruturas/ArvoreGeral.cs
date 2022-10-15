@@ -7,43 +7,45 @@ namespace VLAR.Estruturas.Arvores
 {
     public class ArvoreGeral<T> : ArvoreI<T>
     {
-        private No<T> raiz;
-        public No<T> ultimoResultado;
+        private No<T>? raiz = null;
+        public No<T>? ultimoResultado = null;
         private long limite = 0;
         private bool temLimite = false;
         public T Raiz
         {
             get
             {
-                return raiz.Objeto;
+                if (raiz is not null)
+                    return raiz.Objeto;
+                else throw new Exception("Árvore nula.");
             }
         }
 
         public long tamanho { get; private set; }
 
-        public void ImporLimite (long limite)
+        public void ImporLimite(long limite)
         {
             this.limite = limite;
             temLimite = true;
         }
 
-        public void DesfazerLimite ()
+        public void DesfazerLimite()
         {
             temLimite = false;
         }
 
-        public bool Adicionar (T item, long valor, long? pai = null)
+        public bool Adicionar(T item, long valor, long? pai = null)
         {
             if (temLimite && limite == tamanho) return false;
 
-            if (tamanho == 0)
+            if (raiz is null)
             {
                 if (pai is not null) throw new ArgumentException("Árvore vazia. Parâmetro pai deve ser nulo.");
                 raiz = new No<T>(item, valor);
             }
             else
             {
-                No<T> noPai = BuscaLarga(pai, raiz);
+                No<T>? noPai = BuscaLarga(pai, raiz);
                 if (noPai is null) throw new ArgumentException("Nó pai não existe na árvore.");
 
                 noPai.Filhos.Add(new No<T>(item, valor, noPai));
@@ -53,35 +55,35 @@ namespace VLAR.Estruturas.Arvores
             return true;
         }
 
-        public No<T> BuscarPreOrdem (long valor)
+        public No<T>? BuscarPreOrdem(long valor)
         {
             ultimoResultado = BuscaPreOrdemRecursiva(valor, raiz);
             return ultimoResultado;
         }
 
-        private No<T> BuscaPreOrdemRecursiva (long valor, No<T> no)
+        private No<T>? BuscaPreOrdemRecursiva(long valor, No<T>? no)
         {
-            if (no.Valor == valor) return no;
             if (no is null) return null;
+            if (no.Valor == valor) return no;
 
             foreach (No<T> filho in no.Filhos)
             {
-                No<T> ultimo = BuscaPreOrdemRecursiva(valor, filho);
-                if (ultimo.Valor == valor) return ultimo;
+                No<T>? ultimo = BuscaPreOrdemRecursiva(valor, filho);
+                if (ultimo is not null && ultimo.Valor == valor) return ultimo;
             }
 
             return null;
         }
 
-        public No<T> BuscarLargamente (long valor)
+        public No<T>? BuscarLargamente(long valor)
         {
             ultimoResultado = BuscaLarga(valor, raiz);
             return ultimoResultado;
         }
 
-        private No<T> BuscaLarga (long? valor, No<T> no)
+        private No<T>? BuscaLarga(long? valor, No<T>? no)
         {
-            if (valor == null) return null;
+            if (valor is null || no is null) return null;
 
             Stack<No<T>> visitados = new Stack<No<T>>();
             visitados.Push(no);
@@ -105,16 +107,24 @@ namespace VLAR.Estruturas.Arvores
             return null;
         }
 
-        public T Remover (long valor)
+        public T? Remover(long valor)
         {
-            No<T> removendo = BuscaLarga(valor, raiz);
+            No<T>? removendo = BuscaLarga(valor, raiz);
             if (removendo is null) throw new ArgumentException("Valor não existe na árvore.");
-            removendo.Pai.Filhos.Remove(removendo);
+            if (removendo.Pai is not null)
+            {
+                foreach (No<T> filho in removendo.Filhos)
+                {
+                    removendo.Pai.Filhos.Add(filho);
+                }
+                removendo.Pai.Filhos.Remove(removendo);
+            }
+            else Zerar();
             tamanho--;
             return removendo.Objeto;
         }
 
-        public void Zerar ()
+        public void Zerar()
         {
             raiz = null;
             tamanho = 0;
@@ -125,15 +135,17 @@ namespace VLAR.Estruturas.Arvores
     {
         public T Objeto { get; set; }
         public long? Valor { get; set; }
-        public No<T> Pai { get; set; }
+        public No<T>? Pai { get; set; }
         public List<No<T>> Filhos { get; set; }
 
-        public No (T Objeto, long Valor, No<T> Pai = null, List<No<T>> Filhos = null)
+        public No(T Objeto, long Valor, No<T>? Pai = null, List<No<T>>? Filhos = null)
         {
             this.Objeto = Objeto;
             this.Valor = Valor;
             this.Pai = Pai;
-            this.Filhos = Filhos;
+            if (Filhos is not null)
+                this.Filhos = new List<No<T>>(Filhos);
+            else this.Filhos = new List<No<T>>();
         }
     }
 }

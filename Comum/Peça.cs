@@ -18,7 +18,13 @@ namespace VLAR.Comum
             Baixo
         }
 
-        public bool Mover (Direcao sentido, long casas)
+        public Peca(byte ID, Tuple<byte, byte> Coordenada)
+        {
+            this.ID = ID;
+            this.Coordenada = Coordenada;
+        }
+
+        public bool Mover(Direcao sentido, long casas)
         {
 
             return true;

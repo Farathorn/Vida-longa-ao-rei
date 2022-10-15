@@ -7,10 +7,10 @@ namespace VLAR.Estruturas.Arvores
 {
     public interface ArvoreI<T>
     {
-        bool Adicionar (T item, long valor, long? pai);
+        bool Adicionar(T item, long valor, long? pai);
 
-        T Remover (long valor);
+        T? Remover(long valor);
 
-        void Zerar ();
+        void Zerar();
     }
 }

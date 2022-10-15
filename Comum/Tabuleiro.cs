@@ -7,11 +7,12 @@ namespace VLAR.Comum
 {
     public class Tabuleiro
     {
-        public List<Peca> pecas { get; private set; }
+        public List<Peca> pecas { get; private set; } = new List<Peca>();
+
         public List<List<Tuple<byte, byte>>> casas { get; private set; }
 
 
-        public Tabuleiro (byte largura, byte altura)
+        public Tabuleiro(byte largura, byte altura)
         {
             casas = new List<List<Tuple<byte, byte>>>(altura);
             for (byte i = 0; i < altura; i++)
