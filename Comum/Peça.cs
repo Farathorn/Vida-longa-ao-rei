@@ -7,6 +7,7 @@ namespace VLAR.Comum
 {
     public abstract class Peca
     {
+        private Tabuleiro Tabuleiro { get; set; }
         private byte ID { get; set; }
         private Tuple<byte, byte> Coordenada { get; set; }
 
@@ -18,8 +19,10 @@ namespace VLAR.Comum
             Baixo
         }
 
-        public Peca(byte ID, Tuple<byte, byte> Coordenada)
+        public Peca(Tabuleiro Tabuleiro, byte ID, Tuple<byte, byte> Coordenada)
         {
+            this.Tabuleiro = Tabuleiro;
+
             this.ID = ID;
             this.Coordenada = Coordenada;
         }
