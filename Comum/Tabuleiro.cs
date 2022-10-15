@@ -32,8 +32,22 @@ namespace VLAR.Comum
             if (pecas.Count == limitePecas) return false;
 
             pecas.Add(nova);
-            casas[nova.Posicao.x][nova.Posicao.y].condicao = Casa.Condicao.Ocupada;
-            casas[nova.Posicao.x][nova.Posicao.y].Ocupante = nova;
+
+            var casaAlterada = casas[nova.Posicao.x][nova.Posicao.y];
+            casaAlterada.condicao = Casa.Condicao.Ocupada;
+            casaAlterada.Ocupante = nova;
+
+            return true;
+        }
+
+        public bool RemoverPeca(Peca removenda)
+        {
+            if (pecas.Count == 0) return false;
+
+            pecas.Remove(removenda);
+            var casaAlterada = casas[removenda.Posicao.x][removenda.Posicao.y];
+            casaAlterada.condicao = Casa.Condicao.Desocupada;
+            casaAlterada.Ocupante = null;
 
             return true;
         }
