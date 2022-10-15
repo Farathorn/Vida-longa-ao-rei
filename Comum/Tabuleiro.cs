@@ -37,6 +37,18 @@ namespace VLAR.Comum
 
             return true;
         }
+
+        public bool RemoverPeca(Peca removenda)
+        {
+            if (pecas.Count == 0) return false;
+
+            pecas.Remove(removenda);
+            var casaAlterada = casas[removenda.Posicao.x][removenda.Posicao.y];
+            casaAlterada.condicao = Casa.Condicao.Desocupada;
+            casaAlterada.Ocupante = null;
+
+            return true;
+        }
     }
 
     public class Casa
