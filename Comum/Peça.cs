@@ -38,6 +38,7 @@ namespace VLAR.Comum
                 {
                     novaCasa.condicao = Casa.Condicao.Ocupada;
                     novaCasa.Ocupante = this;
+                    Posicao = novaCasa.Coordenada;
                 }
                 else return false;
             }
@@ -49,6 +50,7 @@ namespace VLAR.Comum
                 {
                     novaCasa.condicao = Casa.Condicao.Ocupada;
                     novaCasa.Ocupante = this;
+                    Posicao = novaCasa.Coordenada;
                 }
                 else return false;
             }
