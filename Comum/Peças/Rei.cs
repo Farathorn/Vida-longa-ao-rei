@@ -14,6 +14,8 @@ namespace VLAR.Comum
 
         public override bool Mover(Direcao sentido, int quanto)
         {
+            if (this.Tabuleiro is null) throw new Exception("Peça não está em um tabuleiro.");
+
             List<List<Casa>> casas = Tabuleiro.casas;
             if (sentido is Direcao.Cima || sentido is Direcao.Baixo)
             {

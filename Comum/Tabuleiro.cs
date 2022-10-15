@@ -32,6 +32,7 @@ namespace VLAR.Comum
             if (pecas.Count == limitePecas) return false;
 
             pecas.Add(nova);
+            nova.Tabuleiro = this;
 
             var casaAlterada = casas[nova.Posicao.x][nova.Posicao.y];
             casaAlterada.condicao = Casa.Condicao.Ocupada;

@@ -7,7 +7,18 @@ namespace VLAR.Comum
 {
     public abstract class Peca
     {
-        protected Tabuleiro Tabuleiro { get; set; }
+        protected Tabuleiro? tabuleiro = null;
+        public Tabuleiro? Tabuleiro
+        {
+            get
+            {
+                return tabuleiro;
+            }
+            set
+            {
+                if (tabuleiro is null) tabuleiro = value;
+            }
+        }
         protected byte ID { get; set; }
         public Posicao Posicao { get; protected set; }
 
@@ -21,6 +32,8 @@ namespace VLAR.Comum
 
         public virtual bool Mover(Direcao sentido, int quanto)
         {
+            if (this.Tabuleiro is null) throw new Exception("Peça não está em um tabuleiro.");
+
             List<List<Casa>> casas = Tabuleiro.casas;
             if (sentido is Direcao.Cima || sentido is Direcao.Baixo)
             {
