@@ -9,7 +9,7 @@ namespace VLAR.Comum
     {
         public Rei(Tabuleiro Tabuleiro, byte ID, Posicao Posicao) : base(Tabuleiro, ID, Posicao)
         {
-
+            
         }
 
         public override bool Mover(Direcao sentido, int quanto)
