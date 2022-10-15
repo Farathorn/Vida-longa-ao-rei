@@ -7,9 +7,9 @@ namespace VLAR.Comum
 {
     public abstract class Peca
     {
-        private Tabuleiro Tabuleiro { get; set; }
-        private byte ID { get; set; }
-        public Posicao Posicao { get; private set; }
+        protected Tabuleiro Tabuleiro { get; set; }
+        protected byte ID { get; set; }
+        public Posicao Posicao { get; protected set; }
 
         public Peca(Tabuleiro Tabuleiro, byte ID, Posicao Posicao)
         {
@@ -19,13 +19,15 @@ namespace VLAR.Comum
             this.Posicao = Posicao;
         }
 
-        public bool Mover(Direcao sentido, int quanto)
+        public virtual bool Mover(Direcao sentido, int quanto)
         {
             List<List<Casa>> casas = Tabuleiro.casas;
             if (sentido is Direcao.Cima || sentido is Direcao.Baixo)
             {
                 if (sentido is Direcao.Baixo) quanto -= 2 * quanto;
                 var novaCasa = casas[Posicao.x][Posicao.y + quanto];
+
+                if (novaCasa.tipo is Casa.Tipo.Refugio || novaCasa.tipo is Casa.Tipo.Trono) return false;
 
                 if (novaCasa.condicao is Casa.Condicao.Desocupada)
                 {
@@ -39,6 +41,8 @@ namespace VLAR.Comum
             {
                 if (sentido is Direcao.Esquerda) quanto -= 2 * quanto;
                 var novaCasa = casas[Posicao.x + quanto][Posicao.y];
+
+                if (novaCasa.tipo is Casa.Tipo.Refugio || novaCasa.tipo is Casa.Tipo.Trono) return false;
 
                 if (novaCasa.condicao is Casa.Condicao.Desocupada)
                 {
