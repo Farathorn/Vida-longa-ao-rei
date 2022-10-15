@@ -109,6 +109,7 @@ namespace Arvores
         {
             No<T> removendo = BuscaLarga(valor, raiz);
             removendo.Pai.Filhos.Remove(removendo);
+            tamanho--;
             return removendo.Objeto;
         }
 
