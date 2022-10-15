@@ -1,0 +1,7 @@
+{
+    "formattingOptions": {
+        "SpacingAfterMethodDeclarationName": true,
+        "SpaceAfterCast": true,
+        "NewLinesForBracesInMethods": true
+    }
+}
