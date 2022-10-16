@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using VLAR.Comum.Agentes;
 
 namespace VLAR.Comum
 {
@@ -10,7 +11,8 @@ namespace VLAR.Comum
         public List<Peca> pecas { get; private set; } = new List<Peca>();
         private byte limitePecas { get; set; }
         public List<List<Casa>> casas { get; private set; }
-
+        public List<Jogador> jogadores { get; private set; } = new();
+        public List<Espectador> espectadores { get; private set; } = new();
 
         public Tabuleiro(byte largura, byte altura, byte limitePecas)
         {
@@ -52,6 +54,13 @@ namespace VLAR.Comum
 
             return true;
         }
+
+        public void InserirJogador(Jogador player)
+        {
+            jogadores.Add(player);
+            player.Tabuleiro = this;
+        }
+
     }
 
     public class Casa

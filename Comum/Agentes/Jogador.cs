@@ -9,5 +9,10 @@ namespace VLAR.Comum.Agentes
     {
         //Regras:
         public new bool PodeJogar = true;
+
+        public Jogador(string Nome) : base(Nome)
+        {
+
+        }
     }
 }
