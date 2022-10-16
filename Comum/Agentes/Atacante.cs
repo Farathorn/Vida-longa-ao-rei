@@ -9,7 +9,7 @@ namespace VLAR.Comum.Agentes
     public class Atacante : Jogador
     {
         //Regras:
-        public new bool MovimentaMercenario { get; protected set; } = true;
+        public override bool MovimentaMercenario { get; protected set; } = true;
 
         public Atacante(string Nome) : base(Nome)
         {

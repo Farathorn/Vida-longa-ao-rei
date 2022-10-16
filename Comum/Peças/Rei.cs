@@ -54,6 +54,7 @@ namespace VLAR.Comum
                 Posicao = novaCasa.Coordenada;
 
                 Tabuleiro.logMovimentos.Add(feito);
+                Tabuleiro.EfetivarJogada();
 
                 return true;
             }

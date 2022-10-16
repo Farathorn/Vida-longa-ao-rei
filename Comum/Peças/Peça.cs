@@ -36,19 +36,19 @@ namespace VLAR.Comum
             Casa? novaCasa = null;
             if (sentido is Direcao.Cima || sentido is Direcao.Baixo)
             {
-                if (sentido is Direcao.Baixo) quanto -= 2 * quanto;
-                if (Posicao.y + quanto < 0 || Posicao.y + quanto > Tabuleiro.casas[0].Count)
-                    throw new ArgumentException("Nova posição está fora do tabuleiro.");
-
-                novaCasa = Tabuleiro.GetCasa(Posicao.Somar(Posicao, new(0, quanto)));
-            }
-            else
-            {
-                if (sentido is Direcao.Esquerda) quanto -= 2 * quanto;
+                if (sentido is Direcao.Cima) quanto -= 2 * quanto;
                 if (Posicao.x + quanto < 0 || Posicao.x + quanto > Tabuleiro.casas[0].Count)
                     throw new ArgumentException("Nova posição está fora do tabuleiro.");
 
                 novaCasa = Tabuleiro.GetCasa(Posicao.Somar(Posicao, new(quanto, 0)));
+            }
+            else
+            {
+                if (sentido is Direcao.Direita) quanto -= 2 * quanto;
+                if (Posicao.y + quanto < 0 || Posicao.y + quanto > Tabuleiro.casas[0].Count)
+                    throw new ArgumentException("Nova posição está fora do tabuleiro.");
+
+                novaCasa = Tabuleiro.GetCasa(Posicao.Somar(Posicao, new(0, quanto)));
             }
 
             if (novaCasa is not null)
@@ -73,6 +73,7 @@ namespace VLAR.Comum
                 Posicao = novaCasa.Coordenada;
 
                 Tabuleiro.logMovimentos.Add(feito);
+                Tabuleiro.EfetivarJogada();
 
                 return true;
             }

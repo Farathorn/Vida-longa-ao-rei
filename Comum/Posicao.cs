@@ -53,15 +53,15 @@ namespace VLAR.Comum
         static public Direcao Sentido(Posicao a, Posicao b)
         {
             var subtraidos = a - b;
-            if (subtraidos.x == 0 ^ subtraidos.y == 0)
+            if (!(subtraidos.x == 0 ^ subtraidos.y == 0))
             {
                 throw new Exception("Sentido nulo");
             }
 
-            if (subtraidos.x > 0) return Direcao.Direita;
-            if (subtraidos.x < 0) return Direcao.Esquerda;
-            if (subtraidos.y > 0) return Direcao.Cima;
-            if (subtraidos.y < 0) return Direcao.Baixo;
+            if (subtraidos.x > 0) return Direcao.Cima;
+            if (subtraidos.x < 0) return Direcao.Baixo;
+            if (subtraidos.y > 0) return Direcao.Direita;
+            if (subtraidos.y < 0) return Direcao.Esquerda;
 
             throw new Exception("Erro desconhecido no sentido calculado");
         }

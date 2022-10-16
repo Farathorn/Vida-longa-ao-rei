@@ -82,24 +82,24 @@ namespace VLAR.Comum
 
         public Casa? GetCasa(Posicao posicao)
         {
-            if (verificarPosicaoValida(posicao)) return null;
+            if (!verificarPosicaoValida(posicao)) return null;
             return casas[posicao.x][posicao.y];
         }
 
         public Casa? GetCasa(Peca peca)
         {
-            if (verificarPosicaoValida(peca.Posicao)) return null;
+            if (!verificarPosicaoValida(peca.Posicao)) return null;
             return casas[peca.Posicao.x][peca.Posicao.y];
         }
 
         public bool verificarPosicaoValida(Posicao posicao)
         {
             if (posicao.x < 0
-                || posicao.x > casas.Count)
+                || posicao.x > casas.Count - 1)
                 return false;
 
             if (posicao.y < 0
-                || posicao.y > casas.Count)
+                || posicao.y > casas.Count - 1)
                 return false;
 
             return true;
