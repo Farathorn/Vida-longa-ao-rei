@@ -17,7 +17,7 @@ namespace VLAR.Comum
             if (this.Tabuleiro is null) throw new Exception("Peça não está em um tabuleiro.");
 
             List<List<Casa>> casas = Tabuleiro.casas;
-            Casa novaCasa;
+            Casa? novaCasa = null;
             if (sentido is Direcao.Cima || sentido is Direcao.Baixo)
             {
                 if (sentido is Direcao.Baixo) quanto -= 2 * quanto;
@@ -35,21 +35,29 @@ namespace VLAR.Comum
                 novaCasa = Tabuleiro.GetCasa(Posicao.Somar(Posicao, new(quanto, 0))); ;
             }
 
-            if (novaCasa.condicao is Casa.Condicao.Ocupada)
-                return false;
+            if (novaCasa is not null)
+            {
+                if (novaCasa.condicao is Casa.Condicao.Ocupada)
+                    return false;
 
-            Movimento feito = new(origem: Tabuleiro.casas[Posicao.x][Posicao.y],
-                                destino: novaCasa,
-                                peca: this);
+                Casa? casaVelha = Tabuleiro.GetCasa(Posicao);
+                if (casaVelha is null) throw new Exception("Peça estava fora do tabuleiro. Erro indevído.");
 
-            Tabuleiro.GetCasa(Posicao).condicao = Casa.Condicao.Desocupada;
-            novaCasa.condicao = Casa.Condicao.Ocupada;
-            novaCasa.Ocupante = this;
-            Posicao = novaCasa.Coordenada;
+                Movimento feito = new(origem: casaVelha,
+                                    destino: novaCasa,
+                                    peca: this);
 
-            Tabuleiro.logMovimentos.Add(feito);
+                casaVelha.condicao = Casa.Condicao.Desocupada;
+                novaCasa.condicao = Casa.Condicao.Ocupada;
+                novaCasa.Ocupante = this;
+                Posicao = novaCasa.Coordenada;
 
-            return true;
+                Tabuleiro.logMovimentos.Add(feito);
+
+                return true;
+            }
+
+            return false;
         }
     }
 }
