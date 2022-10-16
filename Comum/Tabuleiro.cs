@@ -26,9 +26,9 @@ namespace VLAR.Comum
                 {
                     casas[i].Add(new Casa(new Posicao(i, j)));
                     if (i == 0 && j == 0) casas[i][j].tipo = Casa.Tipo.Refugio;
-                    else if (i == 0 && j == largura) casas[i][j].tipo = Casa.Tipo.Refugio;
-                    else if (i == altura && j == 0) casas[i][j].tipo = Casa.Tipo.Refugio;
-                    else if (i == altura && j == largura) casas[i][j].tipo = Casa.Tipo.Refugio;
+                    else if (i == 0 && j == largura - 1) casas[i][j].tipo = Casa.Tipo.Refugio;
+                    else if (i == altura - 1 && j == 0) casas[i][j].tipo = Casa.Tipo.Refugio;
+                    else if (i == altura - 1 && j == largura - 1) casas[i][j].tipo = Casa.Tipo.Refugio;
                     else if (i == altura / 2 && j == largura / 2) casas[i][j].tipo = Casa.Tipo.Trono;
                     else casas[i][j].tipo = Casa.Tipo.Comum;
                 }
