@@ -21,10 +21,10 @@ namespace VLAR.Comum
             casas = new List<List<Casa>>(altura);
             for (byte i = 0; i < altura; i++)
             {
-                casas[i] = new List<Casa>(largura);
+                casas.Add(new List<Casa>(largura));
                 for (byte j = 0; j < largura; j++)
                 {
-                    casas[i][j] = new Casa(new Posicao(i, j));
+                    casas[i].Add(new Casa(new Posicao(i, j)));
                 }
             }
         }
