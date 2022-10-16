@@ -1,8 +1,13 @@
 ﻿using VLAR.Comum;
+using VLAR.Comum.Agentes;
 
 public class JogoPadrao
 {
     Tabuleiro Jogo = new Tabuleiro(11, 11, 37);
+
+    Defensor defensor = new();
+    Atacante atacante = new();
+
 
     public JogoPadrao()
     {
@@ -45,6 +50,7 @@ public class JogoPadrao
         Jogo.InserirPeca(new Soldado(36, new Posicao(7, 5)));
 
         Jogo.InserirPeca(new Rei(37, new Posicao(05, 05)));
+
 
     }
 
