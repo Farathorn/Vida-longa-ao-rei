@@ -22,6 +22,11 @@ namespace VLAR.Comum
             y = a.y + b.y;
         }
 
+        public static Posicao operator +(Posicao a, Posicao b)
+        {
+            return new Posicao(a.x + b.x, a.y + b.y);
+        }
+
         public Posicao Somar(Posicao somante)
         {
             x += somante.x;
