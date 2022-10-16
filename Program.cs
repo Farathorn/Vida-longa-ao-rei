@@ -84,10 +84,33 @@ public class JogoPadrao
 
     public void Jogar()
     {
-        string input = "0";
+        string? input = "0";
         do
         {
+            input = Console.ReadLine();
+            if (input is not null && input == "m")
+            {
+                input = input.Remove(1);
 
+                string[] strings = input.Split(" ");
+                var coluna = strings[0][0];
+                var linha = strings[0][1];
+
+                int x = int.Parse(linha.ToString());
+                int y = int.Parse(coluna.ToString());
+
+                Posicao selecionada = new Posicao(x, y);
+
+                Casa? subjacente = Jogo.GetCasa(selecionada);
+
+                if (subjacente is not null)
+                {
+                    Peca? movente = subjacente.Ocupante;
+                    atacante.Movimentar(movente, )
+
+                }
+
+            }
         }
         while (input != "0");
     }
