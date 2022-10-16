@@ -48,6 +48,7 @@ namespace VLAR.Comum
                                     peca: this);
 
                 casaVelha.condicao = Casa.Condicao.Desocupada;
+                casaVelha.Ocupante = null;
                 novaCasa.condicao = Casa.Condicao.Ocupada;
                 novaCasa.Ocupante = this;
                 Posicao = novaCasa.Coordenada;
