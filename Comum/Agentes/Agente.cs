@@ -14,5 +14,27 @@ namespace VLAR.Comum.Agentes
         public bool MovimentaMercenario { get; protected set; } = false;
         public bool PoderDeMestre { get; protected set; } = false;
         public bool IA { get; protected set; } = false;
+
+        //Ambiente
+        protected Tabuleiro? tabuleiro = null;
+        public Tabuleiro? Tabuleiro
+        {
+            get
+            {
+                return tabuleiro;
+            }
+            set
+            {
+                if (tabuleiro is null) tabuleiro = value;
+            }
+        }
+
+        //Informações:
+        public string Nome { get; set; }
+
+        public Agente(string Nome)
+        {
+            this.Nome = Nome;
+        }
     }
 }

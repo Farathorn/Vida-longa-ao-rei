@@ -12,5 +12,10 @@ namespace VLAR.Comum.Agentes
         public new bool MovimentaRei { get; protected set; } = true;
         public new bool MovimentaSoldado { get; protected set; } = true;
         public new bool PoderDeMestre { get; protected set; } = true;
+
+        public Mestre(string Nome) : base(Nome)
+        {
+
+        }
     }
 }

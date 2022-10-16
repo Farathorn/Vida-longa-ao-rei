@@ -7,6 +7,9 @@ namespace VLAR.Comum.Agentes
 {
     public class Espectador : Agente
     {
+        public Espectador(string Nome) : base(Nome)
+        {
 
+        }
     }
 }

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using VLAR.Comum.Agentes;
 
 namespace VLAR.Comum
 {
@@ -10,7 +11,9 @@ namespace VLAR.Comum
         public List<Peca> pecas { get; private set; } = new List<Peca>();
         private byte limitePecas { get; set; }
         public List<List<Casa>> casas { get; private set; }
-
+        public List<Jogador> jogadores { get; private set; } = new();
+        public List<Espectador> espectadores { get; private set; } = new();
+        public List<Movimento> logMovimentos { get; private set; } = new();
 
         public Tabuleiro(byte largura, byte altura, byte limitePecas)
         {
@@ -19,10 +22,28 @@ namespace VLAR.Comum
             casas = new List<List<Casa>>(altura);
             for (byte i = 0; i < altura; i++)
             {
-                casas[i] = new List<Casa>(largura);
+                casas.Add(new List<Casa>(largura));
                 for (byte j = 0; j < largura; j++)
                 {
-                    casas[i][j] = new Casa(new Posicao(i, j));
+                    casas[i].Add(new Casa(new Posicao(i, j)));
+
+                    if (i == 0 && j == 0)
+                        casas[i][j].tipo = Casa.Tipo.Refugio;
+
+                    else if (i == 0 && j == largura - 1)
+                        casas[i][j].tipo = Casa.Tipo.Refugio;
+
+                    else if (i == altura - 1 && j == 0)
+                        casas[i][j].tipo = Casa.Tipo.Refugio;
+
+                    else if (i == altura - 1 && j == largura - 1)
+                        casas[i][j].tipo = Casa.Tipo.Refugio;
+
+                    else if (i == altura / 2 && j == largura / 2)
+                        casas[i][j].tipo = Casa.Tipo.Trono;
+
+                    else
+                        casas[i][j].tipo = Casa.Tipo.Comum;
                 }
             }
         }
@@ -52,6 +73,22 @@ namespace VLAR.Comum
 
             return true;
         }
+
+        public void InserirJogador(Jogador player)
+        {
+            jogadores.Add(player);
+            player.Tabuleiro = this;
+        }
+
+        public Casa GetCasa(Posicao posicao)
+        {
+            return casas[posicao.x][posicao.y];
+        }
+
+        public Casa GetCasa(Peca peca)
+        {
+            return casas[peca.Posicao.x][peca.Posicao.y];
+        }
     }
 
     public class Casa
@@ -78,6 +115,27 @@ namespace VLAR.Comum
         {
             this.tipo = tipo;
             this.Coordenada = Coordenada;
+        }
+    }
+
+    public class Movimento
+    {
+        public Casa origem;
+        public Casa destino;
+        public Peca peca;
+
+        public Movimento(Movimento copiando)
+        {
+            this.origem = copiando.origem;
+            this.destino = copiando.destino;
+            this.peca = copiando.peca;
+        }
+
+        public Movimento(Casa origem, Casa destino, Peca peca)
+        {
+            this.origem = origem;
+            this.destino = destino;
+            this.peca = peca;
         }
     }
 }

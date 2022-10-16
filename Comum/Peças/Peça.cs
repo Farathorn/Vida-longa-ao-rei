@@ -33,36 +33,40 @@ namespace VLAR.Comum
             if (this.Tabuleiro is null) throw new Exception("Peça não está em um tabuleiro.");
 
             List<List<Casa>> casas = Tabuleiro.casas;
+            Casa novaCasa;
             if (sentido is Direcao.Cima || sentido is Direcao.Baixo)
             {
                 if (sentido is Direcao.Baixo) quanto -= 2 * quanto;
-                var novaCasa = casas[Posicao.x][Posicao.y + quanto];
+                if (Posicao.y + quanto < 0 || Posicao.y + quanto > Tabuleiro.casas[0].Count)
+                    throw new ArgumentException("Nova posição está fora do tabuleiro.");
 
-                if (novaCasa.tipo is Casa.Tipo.Refugio || novaCasa.tipo is Casa.Tipo.Trono) return false;
-
-                if (novaCasa.condicao is Casa.Condicao.Desocupada)
-                {
-                    novaCasa.condicao = Casa.Condicao.Ocupada;
-                    novaCasa.Ocupante = this;
-                    Posicao = novaCasa.Coordenada;
-                }
-                else return false;
+                novaCasa = Tabuleiro.GetCasa(Posicao.Somar(Posicao, new(0, quanto)));
             }
             else
             {
                 if (sentido is Direcao.Esquerda) quanto -= 2 * quanto;
-                var novaCasa = casas[Posicao.x + quanto][Posicao.y];
+                if (Posicao.x + quanto < 0 || Posicao.x + quanto > Tabuleiro.casas[0].Count)
+                    throw new ArgumentException("Nova posição está fora do tabuleiro.");
 
-                if (novaCasa.tipo is Casa.Tipo.Refugio || novaCasa.tipo is Casa.Tipo.Trono) return false;
-
-                if (novaCasa.condicao is Casa.Condicao.Desocupada)
-                {
-                    novaCasa.condicao = Casa.Condicao.Ocupada;
-                    novaCasa.Ocupante = this;
-                    Posicao = novaCasa.Coordenada;
-                }
-                else return false;
+                novaCasa = Tabuleiro.GetCasa(Posicao.Somar(Posicao, new(quanto, 0)));
             }
+
+            if (novaCasa.tipo is Casa.Tipo.Refugio || novaCasa.tipo is Casa.Tipo.Trono) return false;
+
+
+            if (novaCasa.condicao is Casa.Condicao.Ocupada)
+                return false;
+
+            Movimento feito = new(origem: Tabuleiro.GetCasa(Posicao),
+                                 destino: novaCasa,
+                                 peca: this);
+
+            Tabuleiro.GetCasa(Posicao).condicao = Casa.Condicao.Desocupada;
+            novaCasa.condicao = Casa.Condicao.Ocupada;
+            novaCasa.Ocupante = this;
+            Posicao = novaCasa.Coordenada;
+
+            Tabuleiro.logMovimentos.Add(feito);
 
             return true;
         }
