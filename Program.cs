@@ -5,8 +5,8 @@ public class JogoPadrao
 {
     Tabuleiro Jogo = new Tabuleiro(11, 11, 37);
 
-    Defensor defensor = new();
-    Atacante atacante = new();
+    Defensor defensor;
+    Atacante atacante;
 
 
     public JogoPadrao()
@@ -51,7 +51,17 @@ public class JogoPadrao
 
         Jogo.InserirPeca(new Rei(37, new Posicao(05, 05)));
 
-
+        atacante = new Atacante("Player 1");
+        defensor = new Defensor("Player 2");
     }
 
+    public void Jogar()
+    {
+        string input = "0";
+        do
+        {
+
+        }
+        while (input != "0");
+    }
 }
