@@ -33,42 +33,52 @@ namespace VLAR.Comum
             if (this.Tabuleiro is null) throw new Exception("Peça não está em um tabuleiro.");
 
             List<List<Casa>> casas = Tabuleiro.casas;
-            Casa novaCasa;
+            Casa? novaCasa = null;
             if (sentido is Direcao.Cima || sentido is Direcao.Baixo)
             {
-                if (sentido is Direcao.Baixo) quanto -= 2 * quanto;
-                if (Posicao.y + quanto < 0 || Posicao.y + quanto > Tabuleiro.casas[0].Count)
-                    throw new ArgumentException("Nova posição está fora do tabuleiro.");
-
-                novaCasa = Tabuleiro.GetCasa(Posicao.Somar(Posicao, new(0, quanto)));
-            }
-            else
-            {
-                if (sentido is Direcao.Esquerda) quanto -= 2 * quanto;
+                if (sentido is Direcao.Cima) quanto -= 2 * quanto;
                 if (Posicao.x + quanto < 0 || Posicao.x + quanto > Tabuleiro.casas[0].Count)
                     throw new ArgumentException("Nova posição está fora do tabuleiro.");
 
                 novaCasa = Tabuleiro.GetCasa(Posicao.Somar(Posicao, new(quanto, 0)));
             }
+            else
+            {
+                if (sentido is Direcao.Direita) quanto -= 2 * quanto;
+                if (Posicao.y + quanto < 0 || Posicao.y + quanto > Tabuleiro.casas[0].Count)
+                    throw new ArgumentException("Nova posição está fora do tabuleiro.");
 
-            if (novaCasa.tipo is Casa.Tipo.Refugio || novaCasa.tipo is Casa.Tipo.Trono) return false;
+                novaCasa = Tabuleiro.GetCasa(Posicao.Somar(Posicao, new(0, quanto)));
+            }
+
+            if (novaCasa is not null)
+            {
+                if (novaCasa.tipo is Casa.Tipo.Refugio || novaCasa.tipo is Casa.Tipo.Trono) return false;
 
 
-            if (novaCasa.condicao is Casa.Condicao.Ocupada)
-                return false;
+                if (novaCasa.condicao is Casa.Condicao.Ocupada)
+                    return false;
 
-            Movimento feito = new(origem: Tabuleiro.GetCasa(Posicao),
-                                 destino: novaCasa,
-                                 peca: this);
+                Casa? casaVelha = Tabuleiro.GetCasa(Posicao);
+                if (casaVelha is null) throw new Exception("Peça estava fora do tabuleiro. Erro indevído.");
 
-            Tabuleiro.GetCasa(Posicao).condicao = Casa.Condicao.Desocupada;
-            novaCasa.condicao = Casa.Condicao.Ocupada;
-            novaCasa.Ocupante = this;
-            Posicao = novaCasa.Coordenada;
+                Movimento feito = new(origem: casaVelha,
+                                    destino: novaCasa,
+                                    peca: this);
 
-            Tabuleiro.logMovimentos.Add(feito);
+                casaVelha.condicao = Casa.Condicao.Desocupada;
+                casaVelha.Ocupante = null;
+                novaCasa.condicao = Casa.Condicao.Ocupada;
+                novaCasa.Ocupante = this;
+                Posicao = novaCasa.Coordenada;
 
-            return true;
+                Tabuleiro.logMovimentos.Add(feito);
+                Tabuleiro.EfetivarJogada();
+
+                return true;
+            }
+
+            return false;
         }
     }
 }

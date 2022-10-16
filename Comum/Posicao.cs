@@ -22,6 +22,21 @@ namespace VLAR.Comum
             y = a.y + b.y;
         }
 
+        public static Posicao operator +(Posicao a, Posicao b)
+        {
+            return new Posicao(a.x + b.x, a.y + b.y);
+        }
+
+        public static Posicao operator -(Posicao a, Posicao b)
+        {
+            return new Posicao(a.x - b.x, a.y - b.y);
+        }
+
+        public static double operator !(Posicao vetor)
+        {
+            return Math.Sqrt(vetor.x * vetor.x + vetor.y * vetor.y);
+        }
+
         public Posicao Somar(Posicao somante)
         {
             x += somante.x;
@@ -33,6 +48,22 @@ namespace VLAR.Comum
         static public Posicao Somar(Posicao a, Posicao b)
         {
             return new Posicao(a.x + b.x, a.y + b.y);
+        }
+
+        static public Direcao Sentido(Posicao a, Posicao b)
+        {
+            var subtraidos = a - b;
+            if (!(subtraidos.x == 0 ^ subtraidos.y == 0))
+            {
+                throw new Exception("Sentido nulo");
+            }
+
+            if (subtraidos.x > 0) return Direcao.Cima;
+            if (subtraidos.x < 0) return Direcao.Baixo;
+            if (subtraidos.y > 0) return Direcao.Direita;
+            if (subtraidos.y < 0) return Direcao.Esquerda;
+
+            throw new Exception("Erro desconhecido no sentido calculado");
         }
     }
 

@@ -8,12 +8,12 @@ namespace VLAR.Comum.Agentes
     public abstract class Agente
     {
         //Regras:
-        public bool PodeJogar { get; protected set; } = false;
-        public bool MovimentaRei { get; protected set; } = false;
-        public bool MovimentaSoldado { get; protected set; } = false;
-        public bool MovimentaMercenario { get; protected set; } = false;
-        public bool PoderDeMestre { get; protected set; } = false;
-        public bool IA { get; protected set; } = false;
+        public virtual bool PodeJogar { get; protected set; } = false;
+        public virtual bool MovimentaRei { get; protected set; } = false;
+        public virtual bool MovimentaSoldado { get; protected set; } = false;
+        public virtual bool MovimentaMercenario { get; protected set; } = false;
+        public virtual bool PoderDeMestre { get; protected set; } = false;
+        public virtual bool IA { get; protected set; } = false;
 
         //Ambiente
         protected Tabuleiro? tabuleiro = null;

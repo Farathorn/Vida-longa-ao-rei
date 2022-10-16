@@ -59,10 +59,10 @@ public class JogoPadrao
     {
         foreach (List<Casa> linha in Jogo.casas)
         {
+            Console.Write(Convert.ToChar(int.Parse(Jogo.casas.IndexOf(linha).ToString()) + 65));
             Console.Write("|");
             foreach (Casa casa in linha)
             {
-
                 if (casa.Ocupante is null
                      && casa.tipo is not Casa.Tipo.Refugio
                      && casa.tipo is not Casa.Tipo.Trono)
@@ -80,14 +80,58 @@ public class JogoPadrao
             }
             Console.Write("\n");
         }
+
+        Console.WriteLine("   1   2   3   4   5   6   7   8   9  10  11");
     }
 
     public void Jogar()
     {
-        string input = "0";
+        string? input = "0";
         do
         {
+            try
+            {
+                input = Console.ReadLine();
+                if (input is not null && input.StartsWith("m "))
+                {
+                    input = input.Substring(2);
 
+                    string[] strings = input.Split(" ");
+
+                    var coluna = strings[0][1];
+                    var linha = strings[0][0];
+
+                    var colunaDestino = strings[1][1];
+                    var linhaDestino = strings[1][0];
+
+                    int xOrigem = (int)coluna - 49;
+                    int yOrigem = (int)linha - 97;
+
+                    int xDestino = (int)colunaDestino - 49;
+                    int yDestino = (int)linhaDestino - 97;
+
+                    Posicao selecionada = new Posicao(yOrigem, xOrigem);
+                    Posicao destino = new Posicao(yDestino, xDestino);
+
+                    Casa? subjacente = Jogo.GetCasa(selecionada);
+                    Casa? subjacenteDestino = Jogo.GetCasa(destino);
+
+                    if (subjacente is not null && subjacenteDestino is not null)
+                    {
+                        Peca? movente = subjacente.Ocupante;
+
+                        if (movente is not null)
+                            atacante.Movimentar(movente, Posicao.Sentido(selecionada, destino), (int)!(destino - selecionada));
+
+                    }
+
+                    DesenharTabuleiro();
+                }
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine(exception);
+            }
         }
         while (input != "0");
     }
@@ -96,5 +140,6 @@ public class JogoPadrao
     {
         JogoPadrao jogo = new();
         jogo.DesenharTabuleiro();
+        jogo.Jogar();
     }
 }

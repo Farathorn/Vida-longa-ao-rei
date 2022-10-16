@@ -80,14 +80,206 @@ namespace VLAR.Comum
             player.Tabuleiro = this;
         }
 
-        public Casa GetCasa(Posicao posicao)
+        public Casa? GetCasa(Posicao posicao)
         {
+            if (!verificarPosicaoValida(posicao)) return null;
             return casas[posicao.x][posicao.y];
         }
 
-        public Casa GetCasa(Peca peca)
+        public Casa? GetCasa(Peca peca)
         {
+            if (!verificarPosicaoValida(peca.Posicao)) return null;
             return casas[peca.Posicao.x][peca.Posicao.y];
+        }
+
+        public bool verificarPosicaoValida(Posicao posicao)
+        {
+            if (posicao.x < 0
+                || posicao.x > casas.Count - 1)
+                return false;
+
+            if (posicao.y < 0
+                || posicao.y > casas.Count - 1)
+                return false;
+
+            return true;
+        }
+
+        public void AtacanteGanha()
+        {
+
+        }
+
+        public void EfetivarJogada()
+        {
+            Movimento ultimo = logMovimentos.Last();
+            var novaPosicao = ultimo.destino.Coordenada;
+
+            //Verificação à esquerda
+            var cerco = novaPosicao + new Posicao(-2, 0);
+            if (verificarPosicaoValida(cerco))
+            {
+                var cercante = GetCasa(cerco);
+                if ((ultimo.peca is Soldado || ultimo.peca is Rei) && cercante is not null
+                    && (cercante.Ocupante is Soldado || cercante.Ocupante is Rei))
+                {
+                    var conferida = GetCasa(cerco + new Posicao(1, 0));
+                    Peca? cercada = null;
+                    if (conferida is not null)
+                        cercada = conferida.Ocupante;
+
+                    if (cercada is not null && cercada is Mercenario)
+                        RemoverPeca(cercada);
+
+                }
+                else if (ultimo.peca is Mercenario && cercante is not null
+                        && cercante.Ocupante is Mercenario)
+                {
+                    var conferida = GetCasa(cerco + new Posicao(1, 0));
+                    Peca? cercada = null;
+                    if (conferida is not null)
+                        cercada = conferida.Ocupante;
+
+                    if (cercada is not null && cercada is Soldado)
+                        RemoverPeca(cercada);
+                    else if (cercada is not null && cercada is Rei)
+                    {
+                        var deCima = GetCasa(cerco + new Posicao(0, 1));
+                        var deBaixo = GetCasa(cerco + new Posicao(0, -1));
+
+                        if (deCima is not null && deCima.Ocupante is Mercenario
+                            && deBaixo is not null && deBaixo.Ocupante is Mercenario)
+                        {
+                            RemoverPeca(cercada);
+                            AtacanteGanha();
+                        }
+                    }
+                }
+            }
+            //Verificação á direita
+            cerco = novaPosicao + new Posicao(2, 0);
+            if (verificarPosicaoValida(cerco))
+            {
+                var cercante = GetCasa(cerco);
+                if ((ultimo.peca is Soldado || ultimo.peca is Rei) && cercante is not null
+                    && (cercante.Ocupante is Soldado || cercante.Ocupante is Rei))
+                {
+                    var conferida = GetCasa(cerco + new Posicao(-1, 0));
+                    Peca? cercada = null;
+                    if (conferida is not null)
+                        cercada = conferida.Ocupante;
+
+                    if (cercada is not null && cercada is Mercenario)
+                        RemoverPeca(cercada);
+
+                }
+                else if (ultimo.peca is Mercenario && cercante is not null
+                        && cercante.Ocupante is Mercenario)
+                {
+                    var conferida = GetCasa(cerco + new Posicao(-1, 0));
+                    Peca? cercada = null;
+                    if (conferida is not null)
+                        cercada = conferida.Ocupante;
+
+                    if (cercada is not null && cercada is Soldado)
+                        RemoverPeca(cercada);
+                    else if (cercada is not null && cercada is Rei)
+                    {
+                        var deCima = GetCasa(cerco + new Posicao(0, 1));
+                        var deBaixo = GetCasa(cerco + new Posicao(0, -1));
+
+                        if (deCima is not null && deCima.Ocupante is Mercenario
+                            && deBaixo is not null && deBaixo.Ocupante is Mercenario)
+                        {
+                            RemoverPeca(cercada);
+                            AtacanteGanha();
+                        }
+                    }
+                }
+            }
+            //Verificar em baixo
+            cerco = novaPosicao + new Posicao(0, -2);
+            if (verificarPosicaoValida(cerco))
+            {
+                var cercante = GetCasa(cerco);
+                if ((ultimo.peca is Soldado || ultimo.peca is Rei) && cercante is not null
+                    && (cercante.Ocupante is Soldado || cercante.Ocupante is Rei))
+                {
+                    var conferida = GetCasa(cerco + new Posicao(0, 1));
+                    Peca? cercada = null;
+                    if (conferida is not null)
+                        cercada = conferida.Ocupante;
+
+                    if (cercada is not null && cercada is Mercenario)
+                        RemoverPeca(cercada);
+
+                }
+                else if (ultimo.peca is Mercenario && cercante is not null
+                        && cercante.Ocupante is Mercenario)
+                {
+                    var conferida = GetCasa(cerco + new Posicao(0, 1));
+                    Peca? cercada = null;
+                    if (conferida is not null)
+                        cercada = conferida.Ocupante;
+
+                    if (cercada is not null && cercada is Soldado)
+                        RemoverPeca(cercada);
+                    else if (cercada is not null && cercada is Rei)
+                    {
+                        var daDireita = GetCasa(cerco + new Posicao(1, 0));
+                        var daEsquerda = GetCasa(cerco + new Posicao(-1, 0));
+
+                        if (daDireita is not null && daDireita.Ocupante is Mercenario
+                            && daEsquerda is not null && daEsquerda.Ocupante is Mercenario)
+                        {
+                            RemoverPeca(cercada);
+                            AtacanteGanha();
+                        }
+                    }
+                }
+            }
+            //Verificar em cima
+            cerco = novaPosicao + new Posicao(0, 2);
+            if (verificarPosicaoValida(cerco))
+            {
+                var cercante = GetCasa(cerco);
+                if ((ultimo.peca is Soldado || ultimo.peca is Rei) && cercante is not null
+                    && (cercante.Ocupante is Soldado || cercante.Ocupante is Rei))
+                {
+                    var conferida = GetCasa(cerco + new Posicao(0, -1));
+                    Peca? cercada = null;
+                    if (conferida is not null)
+                        cercada = conferida.Ocupante;
+
+                    if (cercada is not null && cercada is Mercenario)
+                        RemoverPeca(cercada);
+
+                }
+                else if (ultimo.peca is Mercenario && cercante is not null
+                        && cercante.Ocupante is Mercenario)
+                {
+                    var conferida = GetCasa(cerco + new Posicao(0, -1));
+                    Peca? cercada = null;
+                    if (conferida is not null)
+                        cercada = conferida.Ocupante;
+
+                    if (cercada is not null && cercada is Soldado)
+                        RemoverPeca(cercada);
+                    else if (cercada is not null && cercada is Rei)
+                    {
+                        var daDireita = GetCasa(cerco + new Posicao(1, 0));
+                        var daEsquerda = GetCasa(cerco + new Posicao(-1, 0));
+
+                        if (daDireita is not null && daDireita.Ocupante is Mercenario
+                            && daEsquerda is not null && daEsquerda.Ocupante is Mercenario)
+                        {
+                            RemoverPeca(cercada);
+                            AtacanteGanha();
+                        }
+                    }
+                }
+            }
+
         }
     }
 

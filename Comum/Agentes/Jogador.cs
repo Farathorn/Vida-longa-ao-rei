@@ -8,26 +8,26 @@ namespace VLAR.Comum.Agentes
     public abstract class Jogador : Agente
     {
         //Regras:
-        public new bool PodeJogar = true;
+        public override bool PodeJogar { get; protected set; } = true;
 
         public Jogador(string Nome) : base(Nome)
         {
 
         }
 
-        protected bool Movimentar(Peca peca, Direcao sentido, int quanto)
+        public bool Movimentar(Peca peca, Direcao sentido, int quanto)
         {
             if (PodeJogar)
             {
-                if (peca is Rei && MovimentaRei)
+                if (peca is Rei && this.MovimentaRei)
                 {
                     return peca.Mover(sentido, quanto);
                 }
-                else if (peca is Soldado && MovimentaSoldado)
+                else if (peca is Soldado && this.MovimentaSoldado)
                 {
                     return peca.Mover(sentido, quanto);
                 }
-                else if (peca is Mercenario && MovimentaMercenario)
+                else if (peca is Mercenario && this.MovimentaMercenario)
                 {
                     return peca.Mover(sentido, quanto);
                 }
