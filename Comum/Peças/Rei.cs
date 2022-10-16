@@ -20,6 +20,9 @@ namespace VLAR.Comum
             if (sentido is Direcao.Cima || sentido is Direcao.Baixo)
             {
                 if (sentido is Direcao.Baixo) quanto -= 2 * quanto;
+                if (Posicao.y + quanto < 0 || Posicao.y + quanto > Tabuleiro.casas[0].Count)
+                    throw new ArgumentException("Nova posição está fora do tabuleiro.");
+
                 var novaCasa = casas[Posicao.x][Posicao.y + quanto];
 
                 if (novaCasa.condicao is Casa.Condicao.Desocupada)
@@ -33,6 +36,9 @@ namespace VLAR.Comum
             else
             {
                 if (sentido is Direcao.Esquerda) quanto -= 2 * quanto;
+                if (Posicao.x + quanto < 0 || Posicao.x + quanto > Tabuleiro.casas[0].Count)
+                    throw new ArgumentException("Nova posição está fora do tabuleiro.");
+
                 var novaCasa = casas[Posicao.x + quanto][Posicao.y];
 
                 if (novaCasa.condicao is Casa.Condicao.Desocupada)
