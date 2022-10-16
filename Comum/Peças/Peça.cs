@@ -33,23 +33,14 @@ namespace VLAR.Comum
             if (this.Tabuleiro is null) throw new Exception("Peça não está em um tabuleiro.");
 
             List<List<Casa>> casas = Tabuleiro.casas;
+            Casa novaCasa;
             if (sentido is Direcao.Cima || sentido is Direcao.Baixo)
             {
                 if (sentido is Direcao.Baixo) quanto -= 2 * quanto;
                 if (Posicao.y + quanto < 0 || Posicao.y + quanto > Tabuleiro.casas[0].Count)
                     throw new ArgumentException("Nova posição está fora do tabuleiro.");
 
-                var novaCasa = casas[Posicao.x][Posicao.y + quanto];
-
-                if (novaCasa.tipo is Casa.Tipo.Refugio || novaCasa.tipo is Casa.Tipo.Trono) return false;
-
-                if (novaCasa.condicao is Casa.Condicao.Desocupada)
-                {
-                    novaCasa.condicao = Casa.Condicao.Ocupada;
-                    novaCasa.Ocupante = this;
-                    Posicao = novaCasa.Coordenada;
-                }
-                else return false;
+                novaCasa = casas[Posicao.x][Posicao.y + quanto];
             }
             else
             {
@@ -57,18 +48,18 @@ namespace VLAR.Comum
                 if (Posicao.x + quanto < 0 || Posicao.x + quanto > Tabuleiro.casas[0].Count)
                     throw new ArgumentException("Nova posição está fora do tabuleiro.");
 
-                var novaCasa = casas[Posicao.x + quanto][Posicao.y];
-
-                if (novaCasa.tipo is Casa.Tipo.Refugio || novaCasa.tipo is Casa.Tipo.Trono) return false;
-
-                if (novaCasa.condicao is Casa.Condicao.Desocupada)
-                {
-                    novaCasa.condicao = Casa.Condicao.Ocupada;
-                    novaCasa.Ocupante = this;
-                    Posicao = novaCasa.Coordenada;
-                }
-                else return false;
+                novaCasa = casas[Posicao.x + quanto][Posicao.y];
             }
+
+            if (novaCasa.tipo is Casa.Tipo.Refugio || novaCasa.tipo is Casa.Tipo.Trono) return false;
+
+            if (novaCasa.condicao is Casa.Condicao.Desocupada)
+            {
+                novaCasa.condicao = Casa.Condicao.Ocupada;
+                novaCasa.Ocupante = this;
+                Posicao = novaCasa.Coordenada;
+            }
+            else return false;
 
             return true;
         }
