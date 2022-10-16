@@ -62,10 +62,19 @@ public class JogoPadrao
             Console.Write("|");
             foreach (Casa casa in linha)
             {
-                if (casa.Ocupante is null) Console.Write("   |");
-                if (casa.Ocupante is Soldado) Console.Write(" S |");
-                if (casa.Ocupante is Rei) Console.Write(" R |");
-                if (casa.Ocupante is Mercenario) Console.Write(" M |");
+
+                if (casa.Ocupante is null
+                     && casa.tipo is not Casa.Tipo.Refugio
+                     && casa.tipo is not Casa.Tipo.Trono)
+                    Console.Write("   |");
+                else if (casa.Ocupante is Soldado)
+                    Console.Write(" S |");
+                else if (casa.Ocupante is Rei)
+                    Console.Write(" R |");
+                else if (casa.Ocupante is Mercenario)
+                    Console.Write(" M |");
+                else
+                    Console.Write(" - |");
             }
             Console.Write("\n");
         }
