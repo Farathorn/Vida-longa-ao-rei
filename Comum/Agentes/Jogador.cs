@@ -15,7 +15,7 @@ namespace VLAR.Comum.Agentes
 
         }
 
-        protected bool Movimentar(Peca peca, Direcao sentido, int quanto)
+        public bool Movimentar(Peca peca, Direcao sentido, int quanto)
         {
             if (PodeJogar)
             {
