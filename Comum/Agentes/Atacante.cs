@@ -15,10 +15,5 @@ namespace VLAR.Comum.Agentes
         {
 
         }
-
-        public void Movimentar()
-        {
-
-        }
     }
 }
