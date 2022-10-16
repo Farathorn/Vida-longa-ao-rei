@@ -73,6 +73,8 @@ public class JogoPadrao
                     Console.Write(" R |");
                 else if (casa.Ocupante is Mercenario)
                     Console.Write(" M |");
+                else if (casa.tipo is Casa.Tipo.Refugio)
+                    Console.Write(" x |");
                 else
                     Console.Write(" - |");
             }
