@@ -40,7 +40,7 @@ namespace VLAR.Comum
                 if (Posicao.y + quanto < 0 || Posicao.y + quanto > Tabuleiro.casas[0].Count)
                     throw new ArgumentException("Nova posição está fora do tabuleiro.");
 
-                novaCasa = casas[Posicao.x][Posicao.y + quanto];
+                novaCasa = Tabuleiro.GetCasa(Posicao.Somar(Posicao, new(0, quanto)));
             }
             else
             {
@@ -48,7 +48,7 @@ namespace VLAR.Comum
                 if (Posicao.x + quanto < 0 || Posicao.x + quanto > Tabuleiro.casas[0].Count)
                     throw new ArgumentException("Nova posição está fora do tabuleiro.");
 
-                novaCasa = casas[Posicao.x + quanto][Posicao.y];
+                novaCasa = Tabuleiro.GetCasa(Posicao.Somar(Posicao, new(quanto, 0))); ;
             }
 
             if (novaCasa.tipo is Casa.Tipo.Refugio || novaCasa.tipo is Casa.Tipo.Trono) return false;
@@ -57,7 +57,7 @@ namespace VLAR.Comum
             if (novaCasa.condicao is Casa.Condicao.Ocupada)
                 return false;
 
-            Movimento feito = new(origem: Tabuleiro.casas[Posicao.x][Posicao.y],
+            Movimento feito = new(origem: Tabuleiro.GetCasa(Posicao),
                                  destino: novaCasa,
                                  peca: this);
 

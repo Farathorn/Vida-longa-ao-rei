@@ -80,6 +80,15 @@ namespace VLAR.Comum
             player.Tabuleiro = this;
         }
 
+        public Casa GetCasa(Posicao posicao)
+        {
+            return casas[posicao.x][posicao.y];
+        }
+
+        public Casa GetCasa(Peca peca)
+        {
+            return casas[peca.Posicao.x][peca.Posicao.y];
+        }
     }
 
     public class Casa
