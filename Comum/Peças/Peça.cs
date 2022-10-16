@@ -53,13 +53,19 @@ namespace VLAR.Comum
 
             if (novaCasa.tipo is Casa.Tipo.Refugio || novaCasa.tipo is Casa.Tipo.Trono) return false;
 
-            if (novaCasa.condicao is Casa.Condicao.Desocupada)
-            {
-                novaCasa.condicao = Casa.Condicao.Ocupada;
-                novaCasa.Ocupante = this;
-                Posicao = novaCasa.Coordenada;
-            }
-            else return false;
+
+            if (novaCasa.condicao is Casa.Condicao.Ocupada)
+                return false;
+
+            Movimento feito = new(origem: Tabuleiro.casas[Posicao.x][Posicao.y],
+                                 destino: novaCasa,
+                                 peca: this);
+
+            novaCasa.condicao = Casa.Condicao.Ocupada;
+            novaCasa.Ocupante = this;
+            Posicao = novaCasa.Coordenada;
+
+            Tabuleiro.logMovimentos.Add(feito);
 
             return true;
         }

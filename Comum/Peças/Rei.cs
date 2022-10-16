@@ -35,13 +35,18 @@ namespace VLAR.Comum
                 novaCasa = casas[Posicao.x + quanto][Posicao.y];
             }
 
-            if (novaCasa.condicao is Casa.Condicao.Desocupada)
-            {
-                novaCasa.condicao = Casa.Condicao.Ocupada;
-                novaCasa.Ocupante = this;
-                Posicao = novaCasa.Coordenada;
-            }
-            else return false;
+            if (novaCasa.condicao is Casa.Condicao.Ocupada)
+                return false;
+
+            Movimento feito = new(origem: Tabuleiro.casas[Posicao.x][Posicao.y],
+                                destino: novaCasa,
+                                peca: this);
+
+            novaCasa.condicao = Casa.Condicao.Ocupada;
+            novaCasa.Ocupante = this;
+            Posicao = novaCasa.Coordenada;
+
+            Tabuleiro.logMovimentos.Add(feito);
 
             return true;
         }

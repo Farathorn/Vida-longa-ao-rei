@@ -13,6 +13,7 @@ namespace VLAR.Comum
         public List<List<Casa>> casas { get; private set; }
         public List<Jogador> jogadores { get; private set; } = new();
         public List<Espectador> espectadores { get; private set; } = new();
+        public List<Movimento> logMovimentos { get; private set; } = new();
 
         public Tabuleiro(byte largura, byte altura, byte limitePecas)
         {
@@ -105,6 +106,27 @@ namespace VLAR.Comum
         {
             this.tipo = tipo;
             this.Coordenada = Coordenada;
+        }
+    }
+
+    public class Movimento
+    {
+        public Casa origem;
+        public Casa destino;
+        public Peca peca;
+
+        public Movimento(Movimento copiando)
+        {
+            this.origem = copiando.origem;
+            this.destino = copiando.destino;
+            this.peca = copiando.peca;
+        }
+
+        public Movimento(Casa origem, Casa destino, Peca peca)
+        {
+            this.origem = origem;
+            this.destino = destino;
+            this.peca = peca;
         }
     }
 }
