@@ -32,6 +32,11 @@ namespace VLAR.Comum
             return new Posicao(a.x - b.x, a.y - b.y);
         }
 
+        public static double operator !(Posicao vetor)
+        {
+            return Math.Sqrt(vetor.x * vetor.x + vetor.y * vetor.y);
+        }
+
         public Posicao Somar(Posicao somante)
         {
             x += somante.x;
