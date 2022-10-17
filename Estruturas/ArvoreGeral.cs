@@ -144,15 +144,17 @@ namespace VLAR.Estruturas.Arvores
         public No<T>? Pai { get; set; }
         public List<No<T>> Filhos { get; set; }
         public long profundidade { get; set; }
+        public int? Peso { get; set; }
 
-        public No(T Objeto, long Valor, long profundidade, No<T>? Pai = null, List<No<T>>? Filhos = null)
+        public No(T objeto, long valor, long profundidade, No<T>? pai = null, int? peso = null, List<No<T>>? filhos = null)
         {
             this.profundidade = profundidade;
-            this.Objeto = Objeto;
-            this.Valor = Valor;
-            this.Pai = Pai;
-            if (Filhos is not null)
-                this.Filhos = new List<No<T>>(Filhos);
+            this.Objeto = objeto;
+            this.Valor = valor;
+            this.Peso = peso;
+            this.Pai = pai;
+            if (filhos is not null)
+                this.Filhos = new List<No<T>>(filhos);
             else this.Filhos = new List<No<T>>();
         }
     }
