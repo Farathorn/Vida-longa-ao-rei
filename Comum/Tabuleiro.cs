@@ -8,12 +8,58 @@ namespace VLAR.Comum
 {
     public class Tabuleiro
     {
-        public List<Peca> pecas { get; private set; } = new List<Peca>();
+        public List<Peca> pecas { get; private set; } = new();
+        public List<Soldado> soldados { get; private set; } = new();
+        public List<Mercenario> mercenarios { get; private set; } = new();
+        public bool rei { get; private set; } = false;
         private byte limitePecas { get; set; }
         public List<List<Casa>> casas { get; private set; }
         public List<Jogador> jogadores { get; private set; } = new();
         public List<Espectador> espectadores { get; private set; } = new();
         public List<Movimento> logMovimentos { get; private set; } = new();
+
+        public Tabuleiro(Tabuleiro copiando)
+        {
+            limitePecas = copiando.limitePecas;
+            pecas = new(copiando.pecas);
+            casas = new(copiando.casas);
+            jogadores = new(copiando.jogadores);
+            espectadores = new(copiando.espectadores);
+            logMovimentos = new(copiando.logMovimentos);
+
+            foreach (Peca peca in pecas)
+            {
+                peca.Tabuleiro = this;
+            }
+
+            casas = new List<List<Casa>>(copiando.casas.Count);
+            for (byte i = 0; i < copiando.casas.Count; i++)
+            {
+                casas.Add(new List<Casa>(copiando.casas[0].Count));
+                for (byte j = 0; j < copiando.casas[0].Count; j++)
+                {
+                    casas[i].Add(new Casa(new Posicao(i, j)));
+
+                    if (i == 0 && j == 0)
+                        casas[i][j].tipo = Casa.Tipo.Refugio;
+
+                    else if (i == 0 && j == copiando.casas[0].Count - 1)
+                        casas[i][j].tipo = Casa.Tipo.Refugio;
+
+                    else if (i == copiando.casas.Count - 1 && j == 0)
+                        casas[i][j].tipo = Casa.Tipo.Refugio;
+
+                    else if (i == copiando.casas.Count - 1 && j == copiando.casas[0].Count - 1)
+                        casas[i][j].tipo = Casa.Tipo.Refugio;
+
+                    else if (i == copiando.casas.Count / 2 && j == copiando.casas[0].Count / 2)
+                        casas[i][j].tipo = Casa.Tipo.Trono;
+
+                    else
+                        casas[i][j].tipo = Casa.Tipo.Comum;
+                }
+            }
+        }
 
         public Tabuleiro(byte largura, byte altura, byte limitePecas)
         {
@@ -53,6 +99,10 @@ namespace VLAR.Comum
             if (pecas.Count == limitePecas) return false;
 
             pecas.Add(nova);
+            if (nova is Soldado) soldados.Add((Soldado)nova);
+            if (nova is Rei) rei = true;
+            if (nova is Mercenario) mercenarios.Add((Mercenario)nova);
+
             nova.Tabuleiro = this;
 
             var casaAlterada = casas[nova.Posicao.x][nova.Posicao.y];

@@ -9,6 +9,7 @@ namespace VLAR.Estruturas.Arvores
     {
         private No<T>? raiz = null;
         public No<T>? ultimoResultado = null;
+        public List<No<T>> listaLinearNos = new();
         private long limite = 0;
         private bool temLimite = false;
         public T Raiz
@@ -34,25 +35,29 @@ namespace VLAR.Estruturas.Arvores
             temLimite = false;
         }
 
-        public bool Adicionar(T item, long valor, long? pai = null)
+        public long? Adicionar(T item, long? pai = null)
         {
-            if (temLimite && limite == tamanho) return false;
+            if (temLimite && limite == tamanho) return null;
 
+            long valor = listaLinearNos.Count;
             if (raiz is null)
             {
                 if (pai is not null) throw new ArgumentException("Árvore vazia. Parâmetro pai deve ser nulo.");
-                raiz = new No<T>(item, valor);
+                raiz = new No<T>(item, 0, valor);
+                listaLinearNos.Add(raiz);
             }
             else
             {
                 No<T>? noPai = BuscaLarga(pai, raiz);
                 if (noPai is null) throw new ArgumentException("Nó pai não existe na árvore.");
 
-                noPai.Filhos.Add(new No<T>(item, valor, noPai));
+                No<T> filho = new(item, valor, noPai.profundidade + 1, noPai);
+                noPai.Filhos.Add(filho);
+                listaLinearNos.Add(filho);
             }
 
             tamanho++;
-            return true;
+            return valor;
         }
 
         public No<T>? BuscarPreOrdem(long valor)
@@ -75,8 +80,9 @@ namespace VLAR.Estruturas.Arvores
             return null;
         }
 
-        public No<T>? BuscarLargamente(long valor)
+        public No<T>? BuscarLargamente(long? valor)
         {
+            if (valor is null) return null;
             ultimoResultado = BuscaLarga(valor, raiz);
             return ultimoResultado;
         }
@@ -137,14 +143,18 @@ namespace VLAR.Estruturas.Arvores
         public long? Valor { get; set; }
         public No<T>? Pai { get; set; }
         public List<No<T>> Filhos { get; set; }
+        public long profundidade { get; set; }
+        public int? Peso { get; set; }
 
-        public No(T Objeto, long Valor, No<T>? Pai = null, List<No<T>>? Filhos = null)
+        public No(T objeto, long valor, long profundidade, No<T>? pai = null, int? peso = null, List<No<T>>? filhos = null)
         {
-            this.Objeto = Objeto;
-            this.Valor = Valor;
-            this.Pai = Pai;
-            if (Filhos is not null)
-                this.Filhos = new List<No<T>>(Filhos);
+            this.profundidade = profundidade;
+            this.Objeto = objeto;
+            this.Valor = valor;
+            this.Peso = peso;
+            this.Pai = pai;
+            if (filhos is not null)
+                this.Filhos = new List<No<T>>(filhos);
             else this.Filhos = new List<No<T>>();
         }
     }
