@@ -43,12 +43,12 @@ namespace VLAR.Estruturas.Arvores
             if (raiz is null)
             {
                 if (pai is not null) throw new ArgumentException("Árvore vazia. Parâmetro pai deve ser nulo.");
-                raiz = new No<T>(item, 0, valor);
+                raiz = new No<T>(item, valor, 0);
                 listaLinearNos.Add(raiz);
             }
             else
             {
-                No<T>? noPai = BuscaLarga(pai, raiz);
+                No<T>? noPai = BuscaLarga(pai);
                 if (noPai is null) throw new ArgumentException("Nó pai não existe na árvore.");
 
                 No<T> filho = new(item, valor, noPai.profundidade + 1, noPai);
@@ -83,20 +83,20 @@ namespace VLAR.Estruturas.Arvores
         public No<T>? BuscarLargamente(long? valor)
         {
             if (valor is null) return null;
-            ultimoResultado = BuscaLarga(valor, raiz);
+            ultimoResultado = BuscaLarga(valor);
             return ultimoResultado;
         }
 
-        private No<T>? BuscaLarga(long? valor, No<T>? no)
+        private No<T>? BuscaLarga(long? valor)
         {
-            if (valor is null || no is null) return null;
+            if (valor is null || raiz is null) return null;
 
             Stack<No<T>> visitados = new Stack<No<T>>();
-            visitados.Push(no);
+            visitados.Push(raiz);
 
             do
             {
-                no = visitados.Pop();
+                var no = visitados.Pop();
                 if (no.Valor == valor) return no;
 
                 foreach (No<T> filho in no.Filhos)
@@ -115,7 +115,7 @@ namespace VLAR.Estruturas.Arvores
 
         public T? Remover(long valor)
         {
-            No<T>? removendo = BuscaLarga(valor, raiz);
+            No<T>? removendo = BuscaLarga(valor);
             if (removendo is null) throw new ArgumentException("Valor não existe na árvore.");
             if (removendo.Pai is not null)
             {
@@ -133,6 +133,7 @@ namespace VLAR.Estruturas.Arvores
         public void Zerar()
         {
             raiz = null;
+            listaLinearNos = new();
             tamanho = 0;
         }
     }
@@ -143,6 +144,7 @@ namespace VLAR.Estruturas.Arvores
         public long? Valor { get; set; }
         public No<T>? Pai { get; set; }
         public List<No<T>> Filhos { get; set; }
+        public List<List<No<T>>> caminhosPerpassantes = new();
         public long profundidade { get; set; }
         public int? Peso { get; set; }
 

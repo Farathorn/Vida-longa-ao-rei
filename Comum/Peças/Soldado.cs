@@ -7,6 +7,11 @@ namespace VLAR.Comum
 {
     public class Soldado : Peca
     {
+        public Soldado(Soldado copiando) : base(copiando)
+        {
+
+        }
+
         public Soldado(byte ID, Posicao Posicao) : base(ID, Posicao)
         {
 

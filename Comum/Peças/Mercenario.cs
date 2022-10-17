@@ -7,6 +7,11 @@ namespace VLAR.Comum
 {
     public class Mercenario : Peca
     {
+        public Mercenario(Mercenario copiando) : base(copiando)
+        {
+
+        }
+
         public Mercenario(byte ID, Posicao Posicao) : base(ID, Posicao)
         {
 

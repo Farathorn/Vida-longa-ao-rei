@@ -1,12 +1,16 @@
 ﻿using VLAR.Comum;
 using VLAR.Comum.Agentes;
+using VLAR.IA;
 
 public class JogoPadrao
 {
     Tabuleiro Jogo = new Tabuleiro(11, 11, 37);
 
-    Defensor defensor;
-    Atacante atacante;
+    Jogador? player = null;
+    Jogador? IA1 = null;
+    Jogador? IA2 = null;
+    Defensor defensor = new("Defensor");
+    Atacante atacante = new("Atacante");
 
 
     public JogoPadrao()
@@ -84,15 +88,40 @@ public class JogoPadrao
         Console.WriteLine("   1   2   3   4   5   6   7   8   9  10  11");
     }
 
-    public void Jogar()
+    public void LoopJogadorVSIA()
     {
-        string? input = "0";
+        Bot bot1;
+        string? input;
+        do
+        {
+            Console.WriteLine("Deseja jogar como atacante ou defensor?");
+            input = Console.ReadLine();
+            if (input is null) throw new Exception("String nula.");
+            else if (input.StartsWith("a"))
+            {
+                player = atacante;
+                IA1 = defensor;
+            }
+            else if (input.StartsWith("d"))
+            {
+                player = defensor;
+                IA1 = atacante;
+            }
+        }
+        while ((player is not Defensor && player is not Atacante) || input == "0");
+
+        if (input == "0") return;
+        if (player is null) return;
+        if (IA1 is null) return;
+
+        bot1 = new(Jogo, IA1);
+
         do
         {
             try
             {
                 input = Console.ReadLine();
-                if (input is not null && input.StartsWith("m "))
+                if (input is not null && input.StartsWith("m ") && !Jogo.JogoTerminado)
                 {
                     input = input.Substring(2);
 
@@ -121,8 +150,12 @@ public class JogoPadrao
                         Peca? movente = subjacente.Ocupante;
 
                         if (movente is not null)
-                            atacante.Movimentar(movente, Posicao.Sentido(selecionada, destino), (int)!(destino - selecionada));
+                            player.Movimentar(movente, Posicao.Sentido(selecionada, destino), (int)!(destino - selecionada));
 
+                        DesenharTabuleiro();
+
+                        bot1.Etapas();
+                        Task.Delay(4000);
                     }
 
                     DesenharTabuleiro();
@@ -133,7 +166,61 @@ public class JogoPadrao
                 Console.WriteLine(exception);
             }
         }
+        while (input != "0" || !Jogo.JogoTerminado);
+    }
+
+    public void LoopIAVSIA()
+    {
+        IA1 = atacante;
+        IA2 = defensor;
+
+        Bot bot1 = new(Jogo, atacante);
+        Bot bot2 = new(Jogo, defensor);
+
+        string? input;
+        do
+        {
+            try
+            {
+                while (!Jogo.JogoTerminado)
+                {
+                    Task.Delay(3000);
+                    bot1.Etapas();
+                    DesenharTabuleiro();
+                    Task.Delay(3000);
+                    bot2.Etapas();
+                    DesenharTabuleiro();
+                }
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine(exception);
+            }
+            input = Console.ReadLine();
+        }
         while (input != "0");
+
+
+    }
+
+    public void Jogar()
+    {
+        string? input = "0";
+
+        Console.WriteLine("Deseja jogar ou assistir?");
+        input = Console.ReadLine();
+        if (input is null) throw new Exception("String nula.");
+
+
+        if (input.StartsWith("j"))
+        {
+            LoopJogadorVSIA();
+        }
+        else if (input.StartsWith("a"))
+        {
+            LoopIAVSIA();
+        }
+        else Jogar();
     }
 
     public static void Main(string[] Args)

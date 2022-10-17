@@ -50,6 +50,20 @@ namespace VLAR.Comum
             return new Posicao(a.x + b.x, a.y + b.y);
         }
 
+        static public bool operator ==(Posicao a, Posicao b)
+        {
+            if (a.x == b.x && a.y == b.y) return true;
+
+            return false;
+        }
+
+        static public bool operator !=(Posicao a, Posicao b)
+        {
+            if (a.x != b.x || a.y != b.y) return true;
+
+            return false;
+        }
+
         static public Direcao Sentido(Posicao a, Posicao b)
         {
             var subtraidos = b - a;
