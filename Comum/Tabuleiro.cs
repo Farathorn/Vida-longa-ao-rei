@@ -17,6 +17,18 @@ namespace VLAR.Comum
 
         public Tabuleiro(Tabuleiro copiando)
         {
+            limitePecas = copiando.limitePecas;
+            pecas = new(copiando.pecas);
+            casas = new(copiando.casas);
+            jogadores = new(copiando.jogadores);
+            espectadores = new(copiando.espectadores);
+            logMovimentos = new(copiando.logMovimentos);
+
+            foreach (Peca peca in pecas)
+            {
+                peca.Tabuleiro = this;
+            }
+
             casas = new List<List<Casa>>(copiando.casas.Count);
             for (byte i = 0; i < copiando.casas.Count; i++)
             {
