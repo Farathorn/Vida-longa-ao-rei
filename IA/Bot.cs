@@ -75,7 +75,7 @@ namespace VLAR.IA
                 throw new Exception("Erro desconhecido.");
 
             long i = 0;
-            while (i < profundidade)
+            while (i <= profundidade)
             {
                 No<Tabuleiro>? NoPai = ArvoreDePossibilidades.BuscarLargamente(noPai);
                 if (NoPai is null) throw new Exception("Erro desconhecido");
@@ -217,7 +217,7 @@ namespace VLAR.IA
                 noPai = NoPai.Valor;
                 i = NoPai.profundidade;
             }
-            while (i < profundidade);
+            while (i <= profundidade);
         }
     }
 }
