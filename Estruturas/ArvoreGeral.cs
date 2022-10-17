@@ -35,10 +35,11 @@ namespace VLAR.Estruturas.Arvores
             temLimite = false;
         }
 
-        public bool Adicionar(T item, long valor, long? pai = null)
+        public long? Adicionar(T item, long? pai = null)
         {
-            if (temLimite && limite == tamanho) return false;
+            if (temLimite && limite == tamanho) return null;
 
+            long valor = listaLinearNos.Count;
             if (raiz is null)
             {
                 if (pai is not null) throw new ArgumentException("Árvore vazia. Parâmetro pai deve ser nulo.");
@@ -56,7 +57,7 @@ namespace VLAR.Estruturas.Arvores
             }
 
             tamanho++;
-            return true;
+            return valor;
         }
 
         public No<T>? BuscarPreOrdem(long valor)
