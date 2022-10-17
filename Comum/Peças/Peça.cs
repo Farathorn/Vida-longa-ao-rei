@@ -49,7 +49,7 @@ namespace VLAR.Comum
                 {
                     for (int i = Posicao.x - 1; i > novaCasa.Coordenada.x; i--)
                     {
-                        if (casas[i][Posicao.y].condicao is Casa.Condicao.Ocupada)
+                        if (casas[i][Posicao.y].condicao is Casa.Condicao.Ocupada || casas[i][Posicao.y].tipo is Casa.Tipo.Trono)
                             return false;
                     }
                 }
@@ -57,7 +57,7 @@ namespace VLAR.Comum
                 {
                     for (int i = Posicao.x + 1; i < novaCasa.Coordenada.x; i++)
                     {
-                        if (casas[i][Posicao.y].condicao is Casa.Condicao.Ocupada)
+                        if (casas[i][Posicao.y].condicao is Casa.Condicao.Ocupada || casas[i][Posicao.y].tipo is Casa.Tipo.Trono)
                             return false;
                     }
                 }
@@ -76,7 +76,7 @@ namespace VLAR.Comum
                 {
                     for (int i = Posicao.y - 1; i > novaCasa.Coordenada.y; i--)
                     {
-                        if (casas[Posicao.x][i].condicao is Casa.Condicao.Ocupada)
+                        if (casas[Posicao.x][i].condicao is Casa.Condicao.Ocupada || casas[Posicao.x][i].tipo is Casa.Tipo.Trono)
                             return false;
                     }
                 }
@@ -84,7 +84,7 @@ namespace VLAR.Comum
                 {
                     for (int i = Posicao.y + 1; i < novaCasa.Coordenada.y; i++)
                     {
-                        if (casas[Posicao.x][i].condicao is Casa.Condicao.Ocupada)
+                        if (casas[Posicao.x][i].condicao is Casa.Condicao.Ocupada || casas[Posicao.x][i].tipo is Casa.Tipo.Trono)
                             return false;
                     }
                 }
