@@ -15,6 +15,37 @@ namespace VLAR.Comum
         public List<Espectador> espectadores { get; private set; } = new();
         public List<Movimento> logMovimentos { get; private set; } = new();
 
+        public Tabuleiro(Tabuleiro copiando)
+        {
+            casas = new List<List<Casa>>(copiando.casas.Count);
+            for (byte i = 0; i < copiando.casas.Count; i++)
+            {
+                casas.Add(new List<Casa>(copiando.casas[0].Count));
+                for (byte j = 0; j < copiando.casas[0].Count; j++)
+                {
+                    casas[i].Add(new Casa(new Posicao(i, j)));
+
+                    if (i == 0 && j == 0)
+                        casas[i][j].tipo = Casa.Tipo.Refugio;
+
+                    else if (i == 0 && j == copiando.casas[0].Count - 1)
+                        casas[i][j].tipo = Casa.Tipo.Refugio;
+
+                    else if (i == copiando.casas.Count - 1 && j == 0)
+                        casas[i][j].tipo = Casa.Tipo.Refugio;
+
+                    else if (i == copiando.casas.Count - 1 && j == copiando.casas[0].Count - 1)
+                        casas[i][j].tipo = Casa.Tipo.Refugio;
+
+                    else if (i == copiando.casas.Count / 2 && j == copiando.casas[0].Count / 2)
+                        casas[i][j].tipo = Casa.Tipo.Trono;
+
+                    else
+                        casas[i][j].tipo = Casa.Tipo.Comum;
+                }
+            }
+        }
+
         public Tabuleiro(byte largura, byte altura, byte limitePecas)
         {
             this.limitePecas = limitePecas;
