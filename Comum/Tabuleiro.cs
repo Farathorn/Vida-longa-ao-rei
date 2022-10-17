@@ -17,6 +17,7 @@ namespace VLAR.Comum
         public List<Jogador> jogadores { get; private set; } = new();
         public List<Espectador> espectadores { get; private set; } = new();
         public List<Movimento> logMovimentos { get; private set; } = new();
+        public bool JogoTerminado { get; private set; } = false;
 
         public Tabuleiro(Tabuleiro copiando)
         {
@@ -157,7 +158,14 @@ namespace VLAR.Comum
 
         public void AtacanteGanha()
         {
+            JogoTerminado = true;
+            Console.WriteLine("Atacante vence!");
+        }
 
+        public void DefensorGanha()
+        {
+            JogoTerminado = true;
+            Console.WriteLine("Defensor vence!");
         }
 
         public void EfetivarJogada()
@@ -330,6 +338,17 @@ namespace VLAR.Comum
                 }
             }
 
+            //Verificar rei no refúgio
+            if (ultimo.peca is Rei)
+            {
+                Rei rei = (Rei)ultimo.peca;
+
+                if (rei.Posicao == new Posicao(0, 0)) DefensorGanha();
+                if (rei.Posicao == new Posicao(0, casas[0].Count)) DefensorGanha();
+                if (rei.Posicao == new Posicao(casas.Count, 0)) DefensorGanha();
+                if (rei.Posicao == new Posicao(casas.Count, casas[0].Count)) DefensorGanha();
+
+            }
         }
     }
 

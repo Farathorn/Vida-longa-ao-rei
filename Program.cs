@@ -5,7 +5,7 @@ public class JogoPadrao
 {
     Tabuleiro Jogo = new Tabuleiro(11, 11, 37);
 
-    Jogador player;
+    Jogador? player = null;
     Defensor defensor = new("Defensor");
     Atacante atacante = new("Atacante");
 
@@ -106,6 +106,8 @@ public class JogoPadrao
         while (player is Defensor || player is Atacante || input == "0");
 
         if (input == "0") return;
+        if (player is null) return;
+
 
         do
         {
