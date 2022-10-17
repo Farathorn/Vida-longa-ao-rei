@@ -5,8 +5,9 @@ public class JogoPadrao
 {
     Tabuleiro Jogo = new Tabuleiro(11, 11, 37);
 
-    Defensor defensor;
-    Atacante atacante;
+    Jogador player;
+    Defensor defensor = new("Defensor");
+    Atacante atacante = new("Atacante");
 
 
     public JogoPadrao()
@@ -82,6 +83,100 @@ public class JogoPadrao
         }
 
         Console.WriteLine("   1   2   3   4   5   6   7   8   9  10  11");
+    }
+
+    public void LoopJogadorVSIA()
+    {
+        string? input;
+        do
+        {
+            Console.WriteLine("Deseja jogar como atacante ou defensor?");
+            input = Console.ReadLine();
+            if (input is null) throw new Exception("String nula.");
+            else if (input.StartsWith("a"))
+            {
+                player = atacante;
+
+            }
+            else if (input.StartsWith("d"))
+            {
+                player = defensor;
+            }
+        }
+        while (player is Defensor || player is Atacante || input == "0");
+
+        if (input == "0") return;
+
+        do
+        {
+            try
+            {
+                input = Console.ReadLine();
+                if (input is not null && input.StartsWith("m ") && !Jogo.JogoTerminado)
+                {
+                    input = input.Substring(2);
+
+                    string[] strings = input.Split(" ");
+
+                    var coluna = strings[0].Substring(1);
+                    var linha = strings[0][0];
+
+                    var colunaDestino = strings[1].Substring(1);
+                    var linhaDestino = strings[1][0];
+
+                    int xOrigem = int.Parse(coluna) - 1;
+                    int yOrigem = (int)linha - 97;
+
+                    int xDestino = int.Parse(colunaDestino) - 1;
+                    int yDestino = (int)linhaDestino - 97;
+
+                    Posicao selecionada = new Posicao(yOrigem, xOrigem);
+                    Posicao destino = new Posicao(yDestino, xDestino);
+
+                    Casa? subjacente = Jogo.GetCasa(selecionada);
+                    Casa? subjacenteDestino = Jogo.GetCasa(destino);
+
+                    if (subjacente is not null && subjacenteDestino is not null)
+                    {
+                        Peca? movente = subjacente.Ocupante;
+
+                        if (movente is not null)
+                            player.Movimentar(movente, Posicao.Sentido(selecionada, destino), (int)!(destino - selecionada));
+
+                    }
+
+                    DesenharTabuleiro();
+                }
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine(exception);
+            }
+        }
+        while (input != "0");
+    }
+
+    public void LoopIAVSIA()
+    {
+        string? input;
+        do
+        {
+            try
+            {
+                while (!Jogo.JogoTerminado)
+                {
+
+                }
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine(exception);
+            }
+            input = Console.ReadLine();
+        }
+        while (input != "0");
+
+
     }
 
     public void Jogar()
