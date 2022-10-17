@@ -8,7 +8,10 @@ namespace VLAR.Comum
 {
     public class Tabuleiro
     {
-        public List<Peca> pecas { get; private set; } = new List<Peca>();
+        public List<Peca> pecas { get; private set; } = new();
+        public List<Soldado> soldados { get; private set; } = new();
+        public List<Mercenario> mercenarios { get; private set; } = new();
+        public bool rei { get; private set; } = false;
         private byte limitePecas { get; set; }
         public List<List<Casa>> casas { get; private set; }
         public List<Jogador> jogadores { get; private set; } = new();
@@ -96,6 +99,10 @@ namespace VLAR.Comum
             if (pecas.Count == limitePecas) return false;
 
             pecas.Add(nova);
+            if (nova is Soldado) soldados.Add((Soldado)nova);
+            if (nova is Rei) rei = true;
+            if (nova is Mercenario) mercenarios.Add((Mercenario)nova);
+
             nova.Tabuleiro = this;
 
             var casaAlterada = casas[nova.Posicao.x][nova.Posicao.y];
