@@ -40,45 +40,80 @@ namespace VLAR.Comum
                 if (Posicao.x + quanto < 0 || Posicao.x + quanto > Tabuleiro.casas[0].Count)
                     throw new ArgumentException("Nova posição está fora do tabuleiro.");
 
+
                 novaCasa = Tabuleiro.GetCasa(Posicao.Somar(Posicao, new(quanto, 0)));
+                if (novaCasa is null)
+                    return false;
+
+                if (sentido is Direcao.Cima)
+                {
+                    for (int i = Posicao.x - 1; i > novaCasa.Coordenada.x; i--)
+                    {
+                        if (casas[i][Posicao.y].condicao is Casa.Condicao.Ocupada || casas[i][Posicao.y].tipo is Casa.Tipo.Trono)
+                            return false;
+                    }
+                }
+                if (sentido is Direcao.Baixo)
+                {
+                    for (int i = Posicao.x + 1; i < novaCasa.Coordenada.x; i++)
+                    {
+                        if (casas[i][Posicao.y].condicao is Casa.Condicao.Ocupada || casas[i][Posicao.y].tipo is Casa.Tipo.Trono)
+                            return false;
+                    }
+                }
             }
             else
             {
-                if (sentido is Direcao.Direita) quanto -= 2 * quanto;
+                if (sentido is Direcao.Esquerda) quanto -= 2 * quanto;
                 if (Posicao.y + quanto < 0 || Posicao.y + quanto > Tabuleiro.casas[0].Count)
                     throw new ArgumentException("Nova posição está fora do tabuleiro.");
 
                 novaCasa = Tabuleiro.GetCasa(Posicao.Somar(Posicao, new(0, quanto)));
-            }
-
-            if (novaCasa is not null)
-            {
-                if (novaCasa.tipo is Casa.Tipo.Refugio || novaCasa.tipo is Casa.Tipo.Trono) return false;
-
-
-                if (novaCasa.condicao is Casa.Condicao.Ocupada)
+                if (novaCasa is null)
                     return false;
 
-                Casa? casaVelha = Tabuleiro.GetCasa(Posicao);
-                if (casaVelha is null) throw new Exception("Peça estava fora do tabuleiro. Erro indevído.");
-
-                Movimento feito = new(origem: casaVelha,
-                                    destino: novaCasa,
-                                    peca: this);
-
-                casaVelha.condicao = Casa.Condicao.Desocupada;
-                casaVelha.Ocupante = null;
-                novaCasa.condicao = Casa.Condicao.Ocupada;
-                novaCasa.Ocupante = this;
-                Posicao = novaCasa.Coordenada;
-
-                Tabuleiro.logMovimentos.Add(feito);
-                Tabuleiro.EfetivarJogada();
-
-                return true;
+                if (sentido is Direcao.Esquerda)
+                {
+                    for (int i = Posicao.y - 1; i > novaCasa.Coordenada.y; i--)
+                    {
+                        if (casas[Posicao.x][i].condicao is Casa.Condicao.Ocupada || casas[Posicao.x][i].tipo is Casa.Tipo.Trono)
+                            return false;
+                    }
+                }
+                if (sentido is Direcao.Direita)
+                {
+                    for (int i = Posicao.y + 1; i < novaCasa.Coordenada.y; i++)
+                    {
+                        if (casas[Posicao.x][i].condicao is Casa.Condicao.Ocupada || casas[Posicao.x][i].tipo is Casa.Tipo.Trono)
+                            return false;
+                    }
+                }
             }
 
-            return false;
+
+            if (novaCasa.tipo is Casa.Tipo.Refugio || novaCasa.tipo is Casa.Tipo.Trono) return false;
+
+
+            if (novaCasa.condicao is Casa.Condicao.Ocupada)
+                return false;
+
+            Casa? casaVelha = Tabuleiro.GetCasa(Posicao);
+            if (casaVelha is null) throw new Exception("Peça estava fora do tabuleiro. Erro indevído.");
+
+            Movimento feito = new(origem: casaVelha,
+                                destino: novaCasa,
+                                peca: this);
+
+            casaVelha.condicao = Casa.Condicao.Desocupada;
+            casaVelha.Ocupante = null;
+            novaCasa.condicao = Casa.Condicao.Ocupada;
+            novaCasa.Ocupante = this;
+            Posicao = novaCasa.Coordenada;
+
+            Tabuleiro.logMovimentos.Add(feito);
+            Tabuleiro.EfetivarJogada();
+
+            return true;
         }
     }
 }

@@ -52,14 +52,14 @@ namespace VLAR.Comum
 
         static public Direcao Sentido(Posicao a, Posicao b)
         {
-            var subtraidos = a - b;
+            var subtraidos = b - a;
             if (!(subtraidos.x == 0 ^ subtraidos.y == 0))
             {
                 throw new Exception("Sentido nulo");
             }
 
-            if (subtraidos.x > 0) return Direcao.Cima;
-            if (subtraidos.x < 0) return Direcao.Baixo;
+            if (subtraidos.x < 0) return Direcao.Cima;
+            if (subtraidos.x > 0) return Direcao.Baixo;
             if (subtraidos.y > 0) return Direcao.Direita;
             if (subtraidos.y < 0) return Direcao.Esquerda;
 
