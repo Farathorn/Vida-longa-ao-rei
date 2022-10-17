@@ -98,16 +98,16 @@ public class JogoPadrao
 
                     string[] strings = input.Split(" ");
 
-                    var coluna = strings[0][1];
+                    var coluna = strings[0].Substring(1);
                     var linha = strings[0][0];
 
-                    var colunaDestino = strings[1][1];
+                    var colunaDestino = strings[1].Substring(1);
                     var linhaDestino = strings[1][0];
 
-                    int xOrigem = (int)coluna - 49;
+                    int xOrigem = int.Parse(coluna) - 1;
                     int yOrigem = (int)linha - 97;
 
-                    int xDestino = (int)colunaDestino - 49;
+                    int xDestino = int.Parse(colunaDestino) - 1;
                     int yDestino = (int)linhaDestino - 97;
 
                     Posicao selecionada = new Posicao(yOrigem, xOrigem);
