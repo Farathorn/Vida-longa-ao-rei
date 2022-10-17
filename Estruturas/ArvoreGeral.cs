@@ -143,6 +143,7 @@ namespace VLAR.Estruturas.Arvores
         public long? Valor { get; set; }
         public No<T>? Pai { get; set; }
         public List<No<T>> Filhos { get; set; }
+        public List<List<No<T>>> caminhosPerpassantes = new();
         public long profundidade { get; set; }
         public int? Peso { get; set; }
 

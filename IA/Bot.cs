@@ -16,6 +16,14 @@ namespace VLAR.IA
         ArvoreGeral<Tabuleiro> ArvoreDePossibilidades { get; set; } = new();
         byte pecasControladas { get; set; }
         byte pecasInimigas { get; set; }
+        Tabuleiro? possibilidadeEscolhida { get; set; } = null;
+
+
+
+
+
+
+
 
         public Bot(Tabuleiro jogo, Jogador controlador)
         {
@@ -28,6 +36,19 @@ namespace VLAR.IA
             GerarArvore();
             Heurística();
 
+            if (possibilidadeEscolhida is null) throw new Exception("Erro na heurística.");
+
+            Movimento movimentoEscolhido = possibilidadeEscolhida.logMovimentos.Last();
+            Direcao sentido = Posicao.Sentido(movimentoEscolhido.origem.Coordenada, movimentoEscolhido.destino.Coordenada);
+            int quanto = (int)!(movimentoEscolhido.origem.Coordenada - movimentoEscolhido.destino.Coordenada);
+            Peca? pecaOriginal = Jogo.pecas.Find(peca =>
+            {
+                if (peca.Posicao == movimentoEscolhido.peca.Posicao) return true;
+                return false;
+            });
+
+            if (pecaOriginal is null) throw new Exception("Peça nula.");
+            pecaOriginal.Mover(sentido, quanto);
         }
 
         private void GerarArvore(byte profundidade = 5, long? pai = null)
@@ -74,11 +95,18 @@ namespace VLAR.IA
             if (noPai is null)
                 throw new Exception("Erro desconhecido.");
 
+            No<Tabuleiro>? NoPai = ArvoreDePossibilidades.BuscarLargamente(noPai);
+            if (NoPai is null) throw new Exception("Erro desconhecido");
+
+            pilha.Push(noPai);
+
             long i = 0;
             while (i <= profundidade)
             {
-                No<Tabuleiro>? NoPai = ArvoreDePossibilidades.BuscarLargamente(noPai);
+                NoPai = ArvoreDePossibilidades.BuscarLargamente(pilha.Pop());
                 if (NoPai is null) throw new Exception("Erro desconhecido");
+                noPai = NoPai.Valor;
+                i = NoPai.profundidade;
 
                 foreach (var pecaPossivel in MatrizPossibilidades)
                 {
@@ -93,11 +121,6 @@ namespace VLAR.IA
                         pilha.Push(id);
                     }
                 }
-
-                NoPai = ArvoreDePossibilidades.BuscarLargamente(pilha.Pop());
-                if (NoPai is null) throw new Exception("Erro desconhecido");
-                noPai = NoPai.Valor;
-                i = NoPai.profundidade;
             }
 
         }
@@ -187,19 +210,25 @@ namespace VLAR.IA
             return pesoEstimado;
         }
 
-        public void Heurística(byte profundidade = 5)
+        public void Heurística(byte profundidade = 1)
         {
             Stack<long?> pilha = new();
-            Tabuleiro analisando = new(Jogo);
-            long? noPai = ArvoreDePossibilidades.Adicionar(analisando);
+            Tabuleiro raiz = new(Jogo);
+            long? noPai = ArvoreDePossibilidades.Adicionar(raiz);
             if (noPai is null)
                 throw new Exception("Erro desconhecido.");
 
+            No<Tabuleiro>? NoPai = ArvoreDePossibilidades.BuscarLargamente(noPai);
+            if (NoPai is null) throw new Exception("Erro desconhecido");
+
+            pilha.Push(noPai);
             long i = 1;
             do
             {
-                No<Tabuleiro>? NoPai = ArvoreDePossibilidades.BuscarLargamente(noPai);
+                NoPai = ArvoreDePossibilidades.BuscarLargamente(pilha.Pop());
                 if (NoPai is null) throw new Exception("Erro desconhecido");
+                noPai = NoPai.Valor;
+                i = NoPai.profundidade;
 
                 No<Tabuleiro> deMelhorPeso = new(NoPai.Objeto, 0, 0);
 
@@ -210,12 +239,11 @@ namespace VLAR.IA
 
                     if (deMelhorPeso.Peso is null) deMelhorPeso = filho;
                     if (deMelhorPeso.Peso < filho.Peso) deMelhorPeso = filho;
+
+                    pilha.Push(filho.Valor);
                 }
 
-                NoPai = ArvoreDePossibilidades.BuscarLargamente(pilha.Pop());
-                if (NoPai is null) throw new Exception("Erro desconhecido");
-                noPai = NoPai.Valor;
-                i = NoPai.profundidade;
+
             }
             while (i <= profundidade);
         }
