@@ -206,6 +206,7 @@ namespace VLAR.IA
                 foreach (No<Tabuleiro> filho in NoPai.Filhos)
                 {
                     filho.Peso = CalculoPecas(NoPai.Objeto, filho.Objeto);
+                    filho.Peso += CalculoDistanciaReiRefugio(NoPai.Objeto, filho.Objeto);
 
                     if (deMelhorPeso.Peso is null) deMelhorPeso = filho;
                     if (deMelhorPeso.Peso < filho.Peso) deMelhorPeso = filho;
