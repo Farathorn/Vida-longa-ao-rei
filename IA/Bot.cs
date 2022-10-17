@@ -17,13 +17,8 @@ namespace VLAR.IA
         byte pecasControladas { get; set; }
         byte pecasInimigas { get; set; }
         Tabuleiro? possibilidadeEscolhida { get; set; } = null;
-
-
-
-
-
-
-
+        List<Tabuleiro?> Trace = new();
+        int profundidade = 5;
 
         public Bot(Tabuleiro jogo, Jogador controlador)
         {
@@ -36,14 +31,16 @@ namespace VLAR.IA
             GerarArvore();
             Heurística();
 
+            possibilidadeEscolhida = Trace.Last();
             if (possibilidadeEscolhida is null) throw new Exception("Erro na heurística.");
 
             Movimento movimentoEscolhido = possibilidadeEscolhida.logMovimentos.Last();
             Direcao sentido = Posicao.Sentido(movimentoEscolhido.origem.Coordenada, movimentoEscolhido.destino.Coordenada);
-            int quanto = (int)!(movimentoEscolhido.origem.Coordenada - movimentoEscolhido.destino.Coordenada);
+            int quanto = (int)!(movimentoEscolhido.destino.Coordenada - movimentoEscolhido.origem.Coordenada);
+
             Peca? pecaOriginal = Jogo.pecas.Find(peca =>
             {
-                if (peca.Posicao == movimentoEscolhido.peca.Posicao) return true;
+                if (peca.Posicao == movimentoEscolhido.origem.Coordenada) return true;
                 return false;
             });
 
@@ -51,13 +48,14 @@ namespace VLAR.IA
             pecaOriginal.Mover(sentido, quanto);
         }
 
-        private void GerarArvore(byte profundidade = 5, long? pai = null)
+        private void CalcularMovimentos(Tabuleiro pai)
         {
             byte pecasControladas = 0;
             byte pecasInimigas = 0;
+
             if (Controlador is Defensor)
             {
-                foreach (Peca peca in Jogo.pecas)
+                foreach (Peca peca in pai.pecas)
                 {
                     if (peca is Soldado || peca is Rei)
                     {
@@ -73,7 +71,7 @@ namespace VLAR.IA
             }
             else
             {
-                foreach (Peca peca in Jogo.pecas)
+                foreach (Peca peca in pai.pecas)
                 {
                     if (peca is Mercenario)
                     {
@@ -88,10 +86,14 @@ namespace VLAR.IA
             }
             this.pecasControladas = pecasControladas;
             this.pecasInimigas = pecasInimigas;
+        }
+
+        private void GerarArvore(long? pai = null)
+        {
+            ArvoreDePossibilidades.Zerar();
 
             Stack<long?> pilha = new();
-            Tabuleiro analisando = new(Jogo);
-            long? noPai = ArvoreDePossibilidades.Adicionar(analisando);
+            long? noPai = ArvoreDePossibilidades.Adicionar(Jogo);
             if (noPai is null)
                 throw new Exception("Erro desconhecido.");
 
@@ -101,27 +103,47 @@ namespace VLAR.IA
             pilha.Push(noPai);
 
             long i = 0;
-            while (i <= profundidade)
+            do
             {
                 NoPai = ArvoreDePossibilidades.BuscarLargamente(pilha.Pop());
                 if (NoPai is null) throw new Exception("Erro desconhecido");
                 noPai = NoPai.Valor;
-                i = NoPai.profundidade;
+                i = NoPai.profundidade + 1;
+                MatrizPossibilidades = new();
+                CalcularMovimentos(NoPai.Objeto);
 
-                foreach (var pecaPossivel in MatrizPossibilidades)
+                if (NoPai.profundidade < profundidade && !pilha.Contains(noPai))
                 {
-                    foreach (var jogadaPossivel in pecaPossivel)
+                    foreach (var pecaPossivel in MatrizPossibilidades)
                     {
-                        Tabuleiro possibilidade = new(NoPai.Objeto);
-                        jogadaPossivel.peca.Mover(Posicao.Sentido(jogadaPossivel.origem.Coordenada, jogadaPossivel.destino.Coordenada),
-                                                                (int)!(jogadaPossivel.origem.Coordenada - jogadaPossivel.destino.Coordenada));
+                        foreach (var jogadaPossivel in pecaPossivel)
+                        {
+
+                            Tabuleiro possibilidade = new(NoPai.Objeto);
+                            /*foreach (Peca peca in NoPai.Objeto.pecas)
+							{
+								possibilidade.InserirPeca(peca);
+								peca.Tabuleiro = possibilidade;
+							}*/
+
+                            Peca? pecaEquivalente = possibilidade.pecas.Find(peca =>
+                            {
+                                if (peca.Posicao == jogadaPossivel.peca.Posicao) return true;
+                                return false;
+                            });
+                            if (pecaEquivalente is null) throw new Exception("Erro de consistência na árvore.");
+
+                            pecaEquivalente.Mover(Posicao.Sentido(jogadaPossivel.origem.Coordenada, jogadaPossivel.destino.Coordenada),
+                                                                    (int)!(jogadaPossivel.origem.Coordenada - jogadaPossivel.destino.Coordenada));
 
 
-                        long? id = ArvoreDePossibilidades.Adicionar(possibilidade, noPai);
-                        pilha.Push(id);
+                            long? id = ArvoreDePossibilidades.Adicionar(possibilidade, noPai);
+                            pilha.Push(id);
+                        }
                     }
                 }
             }
+            while (i < profundidade && pilha.Count != 0);
 
         }
 
@@ -191,44 +213,41 @@ namespace VLAR.IA
                 int pesoDistancia10 = (int)(7 / distanciaRefugioPai10);
                 int pesoDistancia11 = (int)(7 / distanciaRefugioPai11);
 
-                if (distanciaRefugioPai00 > distanciaRefugioFilho00) pesoEstimado += 1 * pesoDistancia00 * (int)(distanciaRefugioPai00 - distanciaRefugioFilho00);
-                if (distanciaRefugioPai00 < distanciaRefugioFilho00) pesoEstimado -= 1 * pesoDistancia00 * (int)(distanciaRefugioFilho00 - distanciaRefugioPai00);
+                if (distanciaRefugioPai00 > distanciaRefugioFilho00) pesoEstimado += 2 * pesoDistancia00 * (int)(distanciaRefugioPai00 - distanciaRefugioFilho00);
+                if (distanciaRefugioPai00 < distanciaRefugioFilho00) pesoEstimado -= 2 * pesoDistancia00 * (int)(distanciaRefugioFilho00 - distanciaRefugioPai00);
 
 
-                if (distanciaRefugioPai01 > distanciaRefugioFilho01) pesoEstimado += 1 * pesoDistancia01 * (int)(distanciaRefugioPai01 - distanciaRefugioFilho01);
-                if (distanciaRefugioPai01 < distanciaRefugioFilho01) pesoEstimado -= 1 * pesoDistancia01 * (int)(distanciaRefugioFilho01 - distanciaRefugioPai01);
+                if (distanciaRefugioPai01 > distanciaRefugioFilho01) pesoEstimado += 2 * pesoDistancia01 * (int)(distanciaRefugioPai01 - distanciaRefugioFilho01);
+                if (distanciaRefugioPai01 < distanciaRefugioFilho01) pesoEstimado -= 2 * pesoDistancia01 * (int)(distanciaRefugioFilho01 - distanciaRefugioPai01);
 
 
-                if (distanciaRefugioPai10 > distanciaRefugioFilho10) pesoEstimado += 1 * pesoDistancia10 * (int)(distanciaRefugioPai10 - distanciaRefugioFilho10);
-                if (distanciaRefugioPai10 < distanciaRefugioFilho10) pesoEstimado -= 1 * pesoDistancia10 * (int)(distanciaRefugioFilho10 - distanciaRefugioPai10);
+                if (distanciaRefugioPai10 > distanciaRefugioFilho10) pesoEstimado += 2 * pesoDistancia10 * (int)(distanciaRefugioPai10 - distanciaRefugioFilho10);
+                if (distanciaRefugioPai10 < distanciaRefugioFilho10) pesoEstimado -= 2 * pesoDistancia10 * (int)(distanciaRefugioFilho10 - distanciaRefugioPai10);
 
 
-                if (distanciaRefugioPai11 > distanciaRefugioFilho11) pesoEstimado += 1 * pesoDistancia10 * (int)(distanciaRefugioPai11 - distanciaRefugioFilho11);
-                if (distanciaRefugioPai11 < distanciaRefugioFilho11) pesoEstimado -= 1 * pesoDistancia10 * (int)(distanciaRefugioFilho11 - distanciaRefugioPai11);
+                if (distanciaRefugioPai11 > distanciaRefugioFilho11) pesoEstimado += 2 * pesoDistancia10 * (int)(distanciaRefugioPai11 - distanciaRefugioFilho11);
+                if (distanciaRefugioPai11 < distanciaRefugioFilho11) pesoEstimado -= 2 * pesoDistancia10 * (int)(distanciaRefugioFilho11 - distanciaRefugioPai11);
             }
 
             return pesoEstimado;
         }
 
-        public void Heurística(byte profundidade = 1)
+        public void Heurística()
         {
             Stack<long?> pilha = new();
-            Tabuleiro raiz = new(Jogo);
-            long? noPai = ArvoreDePossibilidades.Adicionar(raiz);
-            if (noPai is null)
-                throw new Exception("Erro desconhecido.");
 
-            No<Tabuleiro>? NoPai = ArvoreDePossibilidades.BuscarLargamente(noPai);
+            No<Tabuleiro>? NoPai = ArvoreDePossibilidades.BuscarLargamente(0);
             if (NoPai is null) throw new Exception("Erro desconhecido");
+            long? noPai = NoPai.Valor;
 
-            pilha.Push(noPai);
-            long i = 1;
+            pilha.Push(NoPai.Valor);
+            long i;
             do
             {
                 NoPai = ArvoreDePossibilidades.BuscarLargamente(pilha.Pop());
                 if (NoPai is null) throw new Exception("Erro desconhecido");
                 noPai = NoPai.Valor;
-                i = NoPai.profundidade;
+                i = NoPai.profundidade + 1;
 
                 No<Tabuleiro> deMelhorPeso = new(NoPai.Objeto, 0, 0);
 
@@ -243,9 +262,18 @@ namespace VLAR.IA
                     pilha.Push(filho.Valor);
                 }
 
+                if (deMelhorPeso is null) throw new Exception("Erro lógico na árvore.");
 
+                possibilidadeEscolhida = deMelhorPeso.Objeto;
             }
-            while (i <= profundidade);
+            while (i <= profundidade && pilha.Count != 0);
+
+            var k = NoPai.Pai;
+            while (k.Pai != null)
+            {
+                Trace.Add(k.Objeto);
+                k = k.Pai;
+            }
         }
     }
 }

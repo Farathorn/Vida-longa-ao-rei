@@ -1,11 +1,14 @@
 ﻿using VLAR.Comum;
 using VLAR.Comum.Agentes;
+using VLAR.IA;
 
 public class JogoPadrao
 {
     Tabuleiro Jogo = new Tabuleiro(11, 11, 37);
 
     Jogador? player = null;
+    Jogador? IA1 = null;
+    Jogador? IA2 = null;
     Defensor defensor = new("Defensor");
     Atacante atacante = new("Atacante");
 
@@ -87,6 +90,7 @@ public class JogoPadrao
 
     public void LoopJogadorVSIA()
     {
+        Bot bot1;
         string? input;
         do
         {
@@ -96,18 +100,21 @@ public class JogoPadrao
             else if (input.StartsWith("a"))
             {
                 player = atacante;
-
+                IA1 = defensor;
             }
             else if (input.StartsWith("d"))
             {
                 player = defensor;
+                IA1 = atacante;
             }
         }
-        while (player is Defensor || player is Atacante || input == "0");
+        while ((player is not Defensor && player is not Atacante) || input == "0");
 
         if (input == "0") return;
         if (player is null) return;
+        if (IA1 is null) return;
 
+        bot1 = new(Jogo, IA1);
 
         do
         {
@@ -145,6 +152,10 @@ public class JogoPadrao
                         if (movente is not null)
                             player.Movimentar(movente, Posicao.Sentido(selecionada, destino), (int)!(destino - selecionada));
 
+                        DesenharTabuleiro();
+
+                        bot1.Etapas();
+                        Task.Delay(4000);
                     }
 
                     DesenharTabuleiro();
@@ -155,11 +166,17 @@ public class JogoPadrao
                 Console.WriteLine(exception);
             }
         }
-        while (input != "0");
+        while (input != "0" || !Jogo.JogoTerminado);
     }
 
     public void LoopIAVSIA()
     {
+        IA1 = atacante;
+        IA2 = defensor;
+
+        Bot bot1 = new(Jogo, atacante);
+        Bot bot2 = new(Jogo, defensor);
+
         string? input;
         do
         {
@@ -167,7 +184,12 @@ public class JogoPadrao
             {
                 while (!Jogo.JogoTerminado)
                 {
-
+                    Task.Delay(3000);
+                    bot1.Etapas();
+                    DesenharTabuleiro();
+                    Task.Delay(3000);
+                    bot2.Etapas();
+                    DesenharTabuleiro();
                 }
             }
             catch (Exception exception)
@@ -184,53 +206,21 @@ public class JogoPadrao
     public void Jogar()
     {
         string? input = "0";
-        do
+
+        Console.WriteLine("Deseja jogar ou assistir?");
+        input = Console.ReadLine();
+        if (input is null) throw new Exception("String nula.");
+
+
+        if (input.StartsWith("j"))
         {
-            try
-            {
-                input = Console.ReadLine();
-                if (input is not null && input.StartsWith("m "))
-                {
-                    input = input.Substring(2);
-
-                    string[] strings = input.Split(" ");
-
-                    var coluna = strings[0].Substring(1);
-                    var linha = strings[0][0];
-
-                    var colunaDestino = strings[1].Substring(1);
-                    var linhaDestino = strings[1][0];
-
-                    int xOrigem = int.Parse(coluna) - 1;
-                    int yOrigem = (int)linha - 97;
-
-                    int xDestino = int.Parse(colunaDestino) - 1;
-                    int yDestino = (int)linhaDestino - 97;
-
-                    Posicao selecionada = new Posicao(yOrigem, xOrigem);
-                    Posicao destino = new Posicao(yDestino, xDestino);
-
-                    Casa? subjacente = Jogo.GetCasa(selecionada);
-                    Casa? subjacenteDestino = Jogo.GetCasa(destino);
-
-                    if (subjacente is not null && subjacenteDestino is not null)
-                    {
-                        Peca? movente = subjacente.Ocupante;
-
-                        if (movente is not null)
-                            atacante.Movimentar(movente, Posicao.Sentido(selecionada, destino), (int)!(destino - selecionada));
-
-                    }
-
-                    DesenharTabuleiro();
-                }
-            }
-            catch (Exception exception)
-            {
-                Console.WriteLine(exception);
-            }
+            LoopJogadorVSIA();
         }
-        while (input != "0");
+        else if (input.StartsWith("a"))
+        {
+            LoopIAVSIA();
+        }
+        else Jogar();
     }
 
     public static void Main(string[] Args)

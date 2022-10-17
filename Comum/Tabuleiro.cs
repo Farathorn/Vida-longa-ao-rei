@@ -8,12 +8,13 @@ namespace VLAR.Comum
 {
     public class Tabuleiro
     {
+        public long ID { get; set; } = 0;
         public List<Peca> pecas { get; private set; } = new();
         public List<Soldado> soldados { get; private set; } = new();
         public List<Mercenario> mercenarios { get; private set; } = new();
         public bool rei { get; private set; } = false;
         private byte limitePecas { get; set; }
-        public List<List<Casa>> casas { get; private set; }
+        public List<List<Casa>> casas { get; private set; } = new();
         public List<Jogador> jogadores { get; private set; } = new();
         public List<Espectador> espectadores { get; private set; } = new();
         public List<Movimento> logMovimentos { get; private set; } = new();
@@ -21,17 +22,86 @@ namespace VLAR.Comum
 
         public Tabuleiro(Tabuleiro copiando)
         {
+            ID = copiando.ID + 1;
             limitePecas = copiando.limitePecas;
-            pecas = new(copiando.pecas);
-            casas = new(copiando.casas);
+            rei = copiando.rei;
             jogadores = new(copiando.jogadores);
             espectadores = new(copiando.espectadores);
-            logMovimentos = new(copiando.logMovimentos);
 
-            foreach (Peca peca in pecas)
+            for (int i = 0; i < copiando.casas.Count; i++)
             {
-                peca.Tabuleiro = this;
+                casas.Add(new());
+                for (int j = 0; j < copiando.casas[0].Count; j++)
+                {
+                    casas[i].Add(new(copiando.casas[i][j]));
+                }
             }
+
+            foreach (Movimento movimento in copiando.logMovimentos)
+            {
+                logMovimentos.Add(new Movimento(movimento));
+            }
+
+            foreach (Mercenario mercenario in copiando.mercenarios)
+            {
+                var novo = new Mercenario(mercenario);
+                novo.Tabuleiro = this;
+                var novaCasa = novo.Tabuleiro.GetCasa(novo.Posicao);
+                if (novaCasa is null) throw new Exception("Casa nula.");
+                novaCasa.Ocupante = novo;
+                novaCasa.condicao = Casa.Condicao.Ocupada;
+
+                mercenarios.Add(novo);
+                pecas.Add(novo);
+
+                var casaCopiona = copiando.GetCasa(mercenario);
+                if (casaCopiona is null) throw new Exception("Casa inválida.");
+                var casaOcupada = new Casa(casaCopiona);
+                if (casaOcupada is null) throw new Exception("Casa inválida.");
+                casaOcupada.Ocupante = novo;
+            }
+            foreach (Soldado soldado in copiando.soldados)
+            {
+                var novo = new Soldado(soldado);
+                novo.Tabuleiro = this;
+                var novaCasa = novo.Tabuleiro.GetCasa(novo.Posicao);
+                if (novaCasa is null) throw new Exception("Casa nula.");
+                novaCasa.Ocupante = novo;
+                novaCasa.condicao = Casa.Condicao.Ocupada;
+
+                soldados.Add(novo);
+                pecas.Add(novo);
+
+                var casaCopiona = copiando.GetCasa(soldado);
+                if (casaCopiona is null) throw new Exception("Casa inválida.");
+                var casaOcupada = new Casa(casaCopiona);
+                if (casaOcupada is null) throw new Exception("Casa inválida.");
+                casaOcupada.Ocupante = novo;
+            }
+
+            Rei? reiCopiao = (Rei?)copiando.pecas.Find(peca =>
+            {
+                if (peca is Rei) return true;
+                return false;
+            });
+            if (reiCopiao is null) throw new Exception("Rei nulo");
+
+            Rei? Rei = new(reiCopiao);
+            Rei.Tabuleiro = this;
+            var NovaCasa = Rei.Tabuleiro.GetCasa(Rei.Posicao);
+            if (NovaCasa is null) throw new Exception("Casa nula.");
+            NovaCasa.Ocupante = Rei;
+            NovaCasa.condicao = Casa.Condicao.Ocupada;
+
+            pecas.Add(Rei);
+
+            var CasaCopiona = copiando.GetCasa(reiCopiao);
+            if (CasaCopiona is null) throw new Exception("Casa inválida.");
+            var CasaOcupada = new Casa(CasaCopiona);
+            if (CasaOcupada is null) throw new Exception("Casa inválida.");
+            CasaOcupada.Ocupante = Rei;
+
+
 
             casas = new List<List<Casa>>(copiando.casas.Count);
             for (byte i = 0; i < copiando.casas.Count; i++)
@@ -371,6 +441,14 @@ namespace VLAR.Comum
         public Tipo tipo { get; set; }
         public Condicao condicao { get; set; } = Condicao.Desocupada;
         public Peca? Ocupante { get; set; } = null;
+
+        public Casa(Casa copiando)
+        {
+            Coordenada = copiando.Coordenada;
+            tipo = copiando.tipo;
+            condicao = copiando.condicao;
+            Ocupante = copiando.Ocupante;
+        }
 
         public Casa(Posicao Coordenada, Tipo tipo = Tipo.Comum)
         {
