@@ -22,10 +22,95 @@ namespace VLAR.Comum
         protected byte ID { get; set; }
         public Posicao Posicao { get; protected set; }
 
+        public Peca(Peca copiando)
+        {
+            this.ID = copiando.ID;
+            this.Posicao = copiando.Posicao;
+        }
+
         public Peca(byte ID, Posicao Posicao)
         {
             this.ID = ID;
             this.Posicao = Posicao;
+        }
+
+        public List<Movimento> MovimentosPossiveis()
+        {
+            if (this.Tabuleiro is null) throw new Exception("Peça não está em um tabuleiro.");
+
+            List<Movimento> movimentosPossiveis = new();
+
+            var casas = Tabuleiro.casas;
+
+            //Verificação de cima
+            bool bloqueado = false;
+            for (int i = Posicao.x - 1; i > 0; i--)
+            {
+                Casa analisanda = casas[i][Posicao.y];
+                if (analisanda.condicao is Casa.Condicao.Ocupada || analisanda.tipo is Casa.Tipo.Trono)
+                    bloqueado = true;
+
+                if (bloqueado is not true && casas[i][Posicao.y].condicao is Casa.Condicao.Desocupada)
+                {
+                    Casa? esta = Tabuleiro.GetCasa(this);
+                    if (esta is null) throw new Exception("Peça não está em um tabuleiro.");
+
+                    movimentosPossiveis.Add(new Movimento(esta, analisanda, this));
+                }
+            }
+
+            //Verificação de baixo
+            bloqueado = false;
+            for (int i = Posicao.x + 1; i < casas.Count; i++)
+            {
+                Casa analisanda = casas[i][Posicao.y];
+                if (analisanda.condicao is Casa.Condicao.Ocupada || analisanda.tipo is Casa.Tipo.Trono)
+                    bloqueado = true;
+
+                if (bloqueado is not true && casas[i][Posicao.y].condicao is Casa.Condicao.Desocupada)
+                {
+                    Casa? esta = Tabuleiro.GetCasa(this);
+                    if (esta is null) throw new Exception("Peça não está em um tabuleiro.");
+
+                    movimentosPossiveis.Add(new Movimento(esta, analisanda, this));
+                }
+            }
+
+            //Verificação da direita
+            bloqueado = false;
+            for (int i = Posicao.y + 1; i < casas[0].Count; i++)
+            {
+                Casa analisanda = casas[Posicao.x][i];
+                if (analisanda.condicao is Casa.Condicao.Ocupada || analisanda.tipo is Casa.Tipo.Trono)
+                    bloqueado = true;
+
+                if (bloqueado is not true && casas[Posicao.x][i].condicao is Casa.Condicao.Desocupada)
+                {
+                    Casa? esta = Tabuleiro.GetCasa(this);
+                    if (esta is null) throw new Exception("Peça não está em um tabuleiro.");
+
+                    movimentosPossiveis.Add(new Movimento(esta, analisanda, this));
+                }
+            }
+
+            //Verificação da esquerda
+            bloqueado = false;
+            for (int i = Posicao.y - 1; i > 0; i++)
+            {
+                Casa analisanda = casas[Posicao.x][i];
+                if (analisanda.condicao is Casa.Condicao.Ocupada || analisanda.tipo is Casa.Tipo.Trono)
+                    bloqueado = true;
+
+                if (bloqueado is not true && casas[Posicao.x][i].condicao is Casa.Condicao.Desocupada)
+                {
+                    Casa? esta = Tabuleiro.GetCasa(this);
+                    if (esta is null) throw new Exception("Peça não está em um tabuleiro.");
+
+                    movimentosPossiveis.Add(new Movimento(esta, analisanda, this));
+                }
+            }
+
+            return movimentosPossiveis;
         }
 
         public virtual bool Mover(Direcao sentido, int quanto)
