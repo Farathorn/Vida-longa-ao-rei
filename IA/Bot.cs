@@ -153,7 +153,7 @@ namespace VLAR.IA
 
             if (Controlador is Atacante)
             {
-                if (filho.soldados.Count < pai.soldados.Count) pesoEstimado += 4 * (pai.soldados.Count - filho.soldados.Count);
+                if (filho.soldados.Count < pai.soldados.Count) pesoEstimado += 5 * (pai.soldados.Count - filho.soldados.Count);
                 if (!filho.rei) pesoEstimado = +10000;
                 if (filho.mercenarios.Count < pai.mercenarios.Count) pesoEstimado -= 3 * (pai.mercenarios.Count - filho.mercenarios.Count);
             }
@@ -161,7 +161,7 @@ namespace VLAR.IA
             {
                 if (filho.soldados.Count < pai.soldados.Count) pesoEstimado -= 3 * (pai.soldados.Count - filho.soldados.Count);
                 if (!filho.rei) pesoEstimado = -10000;
-                if (filho.mercenarios.Count < pai.mercenarios.Count) pesoEstimado += 2 * (pai.soldados.Count - filho.soldados.Count);
+                if (filho.mercenarios.Count < pai.mercenarios.Count) pesoEstimado += 3 * (pai.soldados.Count - filho.soldados.Count);
             }
 
             return pesoEstimado;
@@ -201,6 +201,9 @@ namespace VLAR.IA
                 double distanciaRefugioPai11 = !(reiPai.Posicao - new Posicao(filho.casas.Count, filho.casas[0].Count));
                 double distanciaRefugioFilho11 = !(reiFilho.Posicao - new Posicao(filho.casas.Count, filho.casas[0].Count));
 
+                double distanciaTronoPai = !(reiPai.Posicao - new Posicao(5, 5));
+                double distanciaTronoFilho = !(reiFilho.Posicao - new Posicao(5, 5));
+
                 if (distanciaRefugioFilho00 < 1 || distanciaRefugioFilho01 < 1
                     || distanciaRefugioFilho10 < 1 || distanciaRefugioFilho11 < 1)
                 {
@@ -208,10 +211,10 @@ namespace VLAR.IA
                     return pesoEstimado;
                 }
 
-                int pesoDistancia00 = (int)(7 / distanciaRefugioPai00);
-                int pesoDistancia01 = (int)(7 / distanciaRefugioPai01);
-                int pesoDistancia10 = (int)(7 / distanciaRefugioPai10);
-                int pesoDistancia11 = (int)(7 / distanciaRefugioPai11);
+                int pesoDistancia00 = (int)(7 / distanciaRefugioFilho00 * distanciaTronoFilho);
+                int pesoDistancia01 = (int)(7 / distanciaRefugioFilho01 * distanciaTronoFilho);
+                int pesoDistancia10 = (int)(7 / distanciaRefugioFilho10 * distanciaTronoFilho);
+                int pesoDistancia11 = (int)(7 / distanciaRefugioFilho11 * distanciaTronoFilho);
 
                 if (distanciaRefugioPai00 > distanciaRefugioFilho00) pesoEstimado += 2 * pesoDistancia00 * (int)(distanciaRefugioPai00 - distanciaRefugioFilho00);
                 if (distanciaRefugioPai00 < distanciaRefugioFilho00) pesoEstimado -= 2 * pesoDistancia00 * (int)(distanciaRefugioFilho00 - distanciaRefugioPai00);
@@ -227,6 +230,28 @@ namespace VLAR.IA
 
                 if (distanciaRefugioPai11 > distanciaRefugioFilho11) pesoEstimado += 2 * pesoDistancia10 * (int)(distanciaRefugioPai11 - distanciaRefugioFilho11);
                 if (distanciaRefugioPai11 < distanciaRefugioFilho11) pesoEstimado -= 2 * pesoDistancia10 * (int)(distanciaRefugioFilho11 - distanciaRefugioPai11);
+            }
+
+            return pesoEstimado;
+        }
+
+        public int CalculoExpansão(Tabuleiro pai, Tabuleiro filho)
+        {
+            int pesoEstimado = 0;
+
+            if (Controlador is Atacante)
+            {
+                for (int i = 0; i < filho.mercenarios.Count; i++)
+                {
+                    if (!(filho.mercenarios[i].Posicao - new Posicao(5, 5)) - !(pai.mercenarios[i].Posicao - new Posicao(5, 5)) < 4)
+                    {
+                        pesoEstimado += 1;
+                    }
+                }
+            }
+            else
+            {
+
             }
 
             return pesoEstimado;
