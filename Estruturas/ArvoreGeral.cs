@@ -9,6 +9,7 @@ namespace VLAR.Estruturas.Arvores
     {
         private No<T>? raiz = null;
         public No<T>? ultimoResultado = null;
+        public List<No<T>> listaLinearNos = new();
         private long limite = 0;
         private bool temLimite = false;
         public T Raiz
@@ -42,13 +43,16 @@ namespace VLAR.Estruturas.Arvores
             {
                 if (pai is not null) throw new ArgumentException("Árvore vazia. Parâmetro pai deve ser nulo.");
                 raiz = new No<T>(item, valor);
+                listaLinearNos.Add(raiz);
             }
             else
             {
                 No<T>? noPai = BuscaLarga(pai, raiz);
                 if (noPai is null) throw new ArgumentException("Nó pai não existe na árvore.");
 
-                noPai.Filhos.Add(new No<T>(item, valor, noPai));
+                No<T> filho = new(item, valor, noPai);
+                noPai.Filhos.Add(filho);
+                listaLinearNos.Add(filho);
             }
 
             tamanho++;
@@ -75,8 +79,9 @@ namespace VLAR.Estruturas.Arvores
             return null;
         }
 
-        public No<T>? BuscarLargamente(long valor)
+        public No<T>? BuscarLargamente(long? valor)
         {
+            if (valor is null) return null;
             ultimoResultado = BuscaLarga(valor, raiz);
             return ultimoResultado;
         }
