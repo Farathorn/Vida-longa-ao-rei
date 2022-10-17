@@ -43,7 +43,7 @@ namespace VLAR.Estruturas.Arvores
             if (raiz is null)
             {
                 if (pai is not null) throw new ArgumentException("Árvore vazia. Parâmetro pai deve ser nulo.");
-                raiz = new No<T>(item, valor);
+                raiz = new No<T>(item, 0, valor);
                 listaLinearNos.Add(raiz);
             }
             else
@@ -51,7 +51,7 @@ namespace VLAR.Estruturas.Arvores
                 No<T>? noPai = BuscaLarga(pai, raiz);
                 if (noPai is null) throw new ArgumentException("Nó pai não existe na árvore.");
 
-                No<T> filho = new(item, valor, noPai);
+                No<T> filho = new(item, valor, noPai.profundidade + 1, noPai);
                 noPai.Filhos.Add(filho);
                 listaLinearNos.Add(filho);
             }
@@ -143,9 +143,11 @@ namespace VLAR.Estruturas.Arvores
         public long? Valor { get; set; }
         public No<T>? Pai { get; set; }
         public List<No<T>> Filhos { get; set; }
+        public long profundidade { get; set; }
 
-        public No(T Objeto, long Valor, No<T>? Pai = null, List<No<T>>? Filhos = null)
+        public No(T Objeto, long Valor, long profundidade, No<T>? Pai = null, List<No<T>>? Filhos = null)
         {
+            this.profundidade = profundidade;
             this.Objeto = Objeto;
             this.Valor = Valor;
             this.Pai = Pai;
