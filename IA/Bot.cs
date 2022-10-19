@@ -294,6 +294,7 @@ namespace VLAR.IA
             while (i <= profundidade && pilha.Count != 0);
 
             var k = NoPai.Pai;
+            if (k is null) throw new Exception("Nó pai é nulo.");
             while (k.Pai != null)
             {
                 Trace.Add(k.Objeto);
