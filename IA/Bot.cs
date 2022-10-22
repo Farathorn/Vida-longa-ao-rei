@@ -499,16 +499,16 @@ namespace VLAR.IA
             else
             {
                 Casa? lateral = filho.Objeto.GetCasa(filho.Objeto.pecas.Last().Posicao + new Posicao(1, 0));
-                if (lateral is not null && lateral.Ocupante is Mercenario) pesoEstimado--;
+                if (lateral is not null && lateral.Ocupante is Mercenario) pesoEstimado++;
 
                 lateral = filho.Objeto.GetCasa(filho.Objeto.pecas.Last().Posicao + new Posicao(-1, 0));
-                if (lateral is not null && lateral.Ocupante is Mercenario) pesoEstimado--;
+                if (lateral is not null && lateral.Ocupante is Mercenario) pesoEstimado++;
 
                 lateral = filho.Objeto.GetCasa(filho.Objeto.pecas.Last().Posicao + new Posicao(0, -1));
-                if (lateral is not null && lateral.Ocupante is Mercenario) pesoEstimado--;
+                if (lateral is not null && lateral.Ocupante is Mercenario) pesoEstimado++;
 
                 lateral = filho.Objeto.GetCasa(filho.Objeto.pecas.Last().Posicao + new Posicao(0, 1));
-                if (lateral is not null && lateral.Ocupante is Mercenario) pesoEstimado--;
+                if (lateral is not null && lateral.Ocupante is Mercenario) pesoEstimado++;
 
                 pesoEstimado *= 5;
             }
@@ -641,9 +641,9 @@ namespace VLAR.IA
             double qtdeQuadrante00Mercenarios = 0;
             double qtdeQuadrante00Soldados = 0;
             bool reiQuadrante00 = false;
-            for (int i = 0, j = 0; j < 4; i++, j++)
+            for (int i = 0, j = 0; j < 5; i++, j++)
             {
-                for (int n = 0; n < 4; n++)
+                for (int n = 0; n < 5; n++)
                 {
                     if (filho.casas[j][n].Ocupante is Mercenario) qtdeQuadrante00Mercenarios++;
                     if (filho.casas[j][n].Ocupante is Soldado) qtdeQuadrante00Soldados++;
@@ -654,9 +654,9 @@ namespace VLAR.IA
             double qtdeQuadrante01Mercenarios = 0;
             double qtdeQuadrante01Soldados = 0;
             bool reiQuadrante01 = false;
-            for (int i = 0, j = 0; j < 4; i++, j++)
+            for (int i = 0, j = 0; j < 5; i++, j++)
             {
-                for (int n = 7; n < 11; n++)
+                for (int n = 6; n < 11; n++)
                 {
                     if (filho.casas[j][n].Ocupante is Mercenario) qtdeQuadrante01Mercenarios++;
                     if (filho.casas[j][n].Ocupante is Soldado) qtdeQuadrante01Soldados++;
@@ -667,9 +667,9 @@ namespace VLAR.IA
             double qtdeQuadrante10Mercenarios = 0;
             double qtdeQuadrante10Soldados = 0;
             bool reiQuadrante10 = false;
-            for (int i = 0, j = 7; j < 11; i++, j++)
+            for (int i = 0, j = 6; j < 11; i++, j++)
             {
-                for (int n = 0; n < 4; n++)
+                for (int n = 0; n < 5; n++)
                 {
                     if (filho.casas[j][n].Ocupante is Mercenario) qtdeQuadrante10Mercenarios++;
                     if (filho.casas[j][n].Ocupante is Soldado) qtdeQuadrante10Soldados++;
@@ -680,9 +680,9 @@ namespace VLAR.IA
             double qtdeQuadrante11Mercenarios = 0;
             double qtdeQuadrante11Soldados = 0;
             bool reiQuadrante11 = false;
-            for (int i = 0, j = 7; j < 11; i++, j++)
+            for (int i = 0, j = 6; j < 11; i++, j++)
             {
-                for (int n = 7; n < 11; n++)
+                for (int n = 6; n < 11; n++)
                 {
                     if (filho.casas[j][n].Ocupante is Mercenario) qtdeQuadrante11Mercenarios++;
                     if (filho.casas[j][n].Ocupante is Soldado) qtdeQuadrante11Soldados++;
