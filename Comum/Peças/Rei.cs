@@ -7,7 +7,7 @@ namespace VLAR.Comum
 {
     public class Rei : Peca
     {
-        public Rei(Rei copiando) : base(copiando)
+        public Rei(Rei copiando, Tabuleiro? tabuleiro = null) : base(copiando, tabuleiro)
         {
 
         }
@@ -24,6 +24,14 @@ namespace VLAR.Comum
             Casa? casaVelha = Tabuleiro.GetCasa(Posicao);
             if (casaVelha is null) throw new Exception("Peça estava fora do tabuleiro. Erro indevído.");
 
+            foreach (List<Casa> coluna in Tabuleiro.casas)
+            {
+                foreach (Casa casa in coluna)
+                {
+                    casa.Movida = false;
+                }
+            }
+
             List<List<Casa>> casas = Tabuleiro.casas;
             Casa? novaCasa = null;
             if (sentido is Direcao.Cima || sentido is Direcao.Baixo)
@@ -31,7 +39,6 @@ namespace VLAR.Comum
                 if (sentido is Direcao.Cima) quanto -= 2 * quanto;
                 if ((sentido is Direcao.Cima && Posicao.x + quanto < 0) || (sentido is Direcao.Baixo && Posicao.x + quanto > Tabuleiro.casas[0].Count))
                     throw new ArgumentException("Nova posição está fora do tabuleiro.");
-
 
                 novaCasa = Tabuleiro.GetCasa(Posicao.Somar(Posicao, new(quanto, 0)));
                 if (novaCasa is null)
@@ -44,6 +51,11 @@ namespace VLAR.Comum
                         if (casas[i][Posicao.y].condicao is Casa.Condicao.Ocupada)
                             return false;
                     }
+
+                    for (int i = Posicao.x; i > novaCasa.Coordenada.x; i--)
+                    {
+                        casas[i][Posicao.y].Movida = true;
+                    }
                 }
                 if (sentido is Direcao.Baixo)
                 {
@@ -51,6 +63,11 @@ namespace VLAR.Comum
                     {
                         if (casas[i][Posicao.y].condicao is Casa.Condicao.Ocupada)
                             return false;
+                    }
+
+                    for (int i = Posicao.x; i < novaCasa.Coordenada.x; i++)
+                    {
+                        casas[i][Posicao.y].Movida = true;
                     }
                 }
             }
@@ -71,6 +88,11 @@ namespace VLAR.Comum
                         if (casas[Posicao.x][i].condicao is Casa.Condicao.Ocupada)
                             return false;
                     }
+
+                    for (int i = Posicao.y; i > novaCasa.Coordenada.y; i--)
+                    {
+                        casas[Posicao.x][i].Movida = true;
+                    }
                 }
                 if (sentido is Direcao.Direita)
                 {
@@ -79,11 +101,13 @@ namespace VLAR.Comum
                         if (casas[Posicao.x][i].condicao is Casa.Condicao.Ocupada || casas[Posicao.x][i].tipo is Casa.Tipo.Trono)
                             return false;
                     }
+
+                    for (int i = Posicao.y; i < novaCasa.Coordenada.y; i++)
+                    {
+                        casas[Posicao.x][i].Movida = true;
+                    }
                 }
             }
-
-
-            if (novaCasa.tipo is Casa.Tipo.Refugio || novaCasa.tipo is Casa.Tipo.Trono) return false;
 
             casaVelha.Ocupante = this;
             casaVelha.condicao = Casa.Condicao.Ocupada;

@@ -67,7 +67,9 @@ public class JogoPadrao
             Console.Write("|");
             foreach (Casa casa in linha)
             {
-                if (casa.Ocupante is null
+                if (casa.Ocupante is null && casa.Movida is true)
+                    Console.Write(" . |");
+                else if (casa.Ocupante is null
                      && casa.tipo is not Casa.Tipo.Refugio
                      && casa.tipo is not Casa.Tipo.Trono)
                     Console.Write("   |");
@@ -166,7 +168,7 @@ public class JogoPadrao
                 Console.WriteLine(exception);
             }
         }
-        while (input != "0" || !Jogo.JogoTerminado);
+        while (input != "0" && !Jogo.JogoTerminado);
     }
 
     public void LoopIAVSIA()

@@ -7,7 +7,7 @@ namespace VLAR.Comum
 {
     public class Soldado : Peca
     {
-        public Soldado(Soldado copiando) : base(copiando)
+        public Soldado(Soldado copiando, Tabuleiro? tabuleiro) : base(copiando, tabuleiro)
         {
 
         }
