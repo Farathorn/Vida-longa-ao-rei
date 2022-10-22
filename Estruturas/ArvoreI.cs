@@ -9,7 +9,7 @@ namespace VLAR.Estruturas.Arvores
     {
         long? Adicionar(T item, long? pai);
 
-        T? Remover(long valor);
+        T? RemoverNo(long? valor);
 
         void Zerar();
     }

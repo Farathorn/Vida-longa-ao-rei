@@ -34,5 +34,12 @@ namespace VLAR.Comum.Agentes
             }
             throw new Exception("Agente não possui privilégios no jogo.");
         }
+
+        public static Jogador GerarOpostoDe(Jogador a)
+        {
+            if (a is Atacante) return new Defensor("Oposto de " + a.Nome);
+            else if (a is Defensor) return new Atacante("Oposto de " + a.Nome);
+            throw new Exception("Tipo não planejado para o método GerarOposto.");
+        }
     }
 }

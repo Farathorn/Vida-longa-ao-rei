@@ -9,7 +9,7 @@ namespace VLAR.Estruturas.Arvores
     {
         private No<T>? raiz = null;
         public No<T>? ultimoResultado = null;
-        public List<No<T>> listaLinearNos = new();
+        public List<No<T>?> listaOrdenadaLargura = new();
         private long limite = 0;
         private bool temLimite = false;
         public T Raiz
@@ -39,21 +39,23 @@ namespace VLAR.Estruturas.Arvores
         {
             if (temLimite && limite == tamanho) return null;
 
-            long valor = listaLinearNos.Count;
+            long valor = listaOrdenadaLargura.Count;
             if (raiz is null)
             {
                 if (pai is not null) throw new ArgumentException("Árvore vazia. Parâmetro pai deve ser nulo.");
                 raiz = new No<T>(item, valor, 0);
-                listaLinearNos.Add(raiz);
+                raiz.Peso = 0;
+                listaOrdenadaLargura.Add(raiz);
             }
             else
             {
-                No<T>? noPai = BuscaLarga(pai);
+                if (pai is null) throw new ArgumentException("Nenhum pai especificado.");
+                No<T>? noPai = listaOrdenadaLargura[(int)pai];
                 if (noPai is null) throw new ArgumentException("Nó pai não existe na árvore.");
 
                 No<T> filho = new(item, valor, noPai.profundidade + 1, noPai);
                 noPai.Filhos.Add(filho);
-                listaLinearNos.Add(filho);
+                listaOrdenadaLargura.Add(filho);
             }
 
             tamanho++;
@@ -71,7 +73,7 @@ namespace VLAR.Estruturas.Arvores
             if (no is null) return null;
             if (no.Valor == valor) return no;
 
-            foreach (No<T> filho in no.Filhos)
+            foreach (No<T>? filho in no.Filhos)
             {
                 No<T>? ultimo = BuscaPreOrdemRecursiva(valor, filho);
                 if (ultimo is not null && ultimo.Valor == valor) return ultimo;
@@ -91,20 +93,20 @@ namespace VLAR.Estruturas.Arvores
         {
             if (valor is null || raiz is null) return null;
 
-            Stack<No<T>> visitados = new Stack<No<T>>();
-            visitados.Push(raiz);
+            Queue<No<T>> visitados = new Queue<No<T>>();
+            visitados.Enqueue(raiz);
 
             do
             {
-                var no = visitados.Pop();
+                var no = visitados.Dequeue();
                 if (no.Valor == valor) return no;
 
-                foreach (No<T> filho in no.Filhos)
+                foreach (No<T>? filho in no.Filhos)
                 {
-                    if (!visitados.Contains(filho))
+                    if (filho is not null && !visitados.Contains(filho))
                     {
                         if (filho.Valor == valor) return filho;
-                        visitados.Push(filho);
+                        visitados.Enqueue(filho);
                     }
                 }
             }
@@ -113,17 +115,19 @@ namespace VLAR.Estruturas.Arvores
             return null;
         }
 
-        public T? Remover(long valor)
+        public T? RemoverNo(long? valor)
         {
-            No<T>? removendo = BuscaLarga(valor);
+            if (valor is null) throw new Exception("Valor inválido.");
+            No<T>? removendo = listaOrdenadaLargura[(int)valor];
             if (removendo is null) throw new ArgumentException("Valor não existe na árvore.");
             if (removendo.Pai is not null)
             {
-                foreach (No<T> filho in removendo.Filhos)
+                foreach (No<T>? filho in removendo.Filhos)
                 {
-                    removendo.Pai.Filhos.Add(filho);
+                    if (filho is not null) RemoverNo(filho.Valor);
                 }
-                removendo.Pai.Filhos.Remove(removendo);
+                removendo.Pai.Filhos[removendo.Pai.Filhos.IndexOf(removendo)] = null;
+                listaOrdenadaLargura.RemoveAt((int)valor);
             }
             else Zerar();
             tamanho--;
@@ -133,7 +137,7 @@ namespace VLAR.Estruturas.Arvores
         public void Zerar()
         {
             raiz = null;
-            listaLinearNos = new();
+            listaOrdenadaLargura = new();
             tamanho = 0;
         }
     }
@@ -143,12 +147,27 @@ namespace VLAR.Estruturas.Arvores
         public T Objeto { get; set; }
         public long? Valor { get; set; }
         public No<T>? Pai { get; set; }
-        public List<No<T>> Filhos { get; set; }
+        public List<No<T>?> Filhos { get; set; }
         public List<List<No<T>>> caminhosPerpassantes = new();
         public long profundidade { get; set; }
         public int? Peso { get; set; }
+        public bool Visitado { get; set; } = false;
+        public bool eNoRuim { get; set; } = false;
+        public bool eNoQueRecalculou { get; set; } = false;
 
-        public No(T objeto, long valor, long profundidade, No<T>? pai = null, int? peso = null, List<No<T>>? filhos = null)
+        public No(No<T> copiando)
+        {
+            this.Objeto = copiando.Objeto;
+            this.Valor = copiando.Valor;
+            this.Pai = copiando.Pai;
+            this.Filhos = copiando.Filhos = new(copiando.Filhos);
+            this.caminhosPerpassantes = new(copiando.caminhosPerpassantes);
+            this.profundidade = copiando.profundidade;
+            this.Peso = copiando.Peso;
+            this.Visitado = false;
+        }
+
+        public No(T objeto, long valor, long profundidade, No<T>? pai = null, int? peso = null, List<No<T>?>? filhos = null)
         {
             this.profundidade = profundidade;
             this.Objeto = objeto;
@@ -156,8 +175,9 @@ namespace VLAR.Estruturas.Arvores
             this.Peso = peso;
             this.Pai = pai;
             if (filhos is not null)
-                this.Filhos = new List<No<T>>(filhos);
-            else this.Filhos = new List<No<T>>();
+                this.Filhos = new(filhos);
+            else this.Filhos = new();
+            this.Visitado = false;
         }
     }
 }

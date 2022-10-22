@@ -7,7 +7,7 @@ namespace VLAR.Comum
 {
     public class Mercenario : Peca
     {
-        public Mercenario(Mercenario copiando) : base(copiando)
+        public Mercenario(Mercenario copiando, Tabuleiro? tabuleiro = null) : base(copiando, tabuleiro)
         {
 
         }

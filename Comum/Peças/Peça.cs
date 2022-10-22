@@ -22,13 +22,13 @@ namespace VLAR.Comum
         public byte ID { get; protected set; }
         public Posicao Posicao { get; protected set; }
 
-        public Peca(Peca copiando)
+        public Peca(Peca copiando, Tabuleiro? tabuleiro = null)
         {
             this.ID = copiando.ID;
             this.Posicao = copiando.Posicao;
-            this.Tabuleiro = copiando.Tabuleiro;
-            if (Tabuleiro is not null)
+            if (tabuleiro is not null)
             {
+                this.Tabuleiro = tabuleiro;
                 var novaCasa = Tabuleiro.GetCasa(Posicao);
                 if (novaCasa is null) throw new Exception("Casa nula.");
                 novaCasa.Ocupante = this;
@@ -55,10 +55,9 @@ namespace VLAR.Comum
             for (int i = Posicao.x - 1; i > 0; i--)
             {
                 Casa analisanda = casas[i][Posicao.y];
-                if (analisanda.condicao is Casa.Condicao.Ocupada || analisanda.tipo is Casa.Tipo.Trono)
+                if (analisanda.condicao is Casa.Condicao.Ocupada || (this is not Rei && (analisanda.tipo is Casa.Tipo.Trono || analisanda.tipo is Casa.Tipo.Refugio)))
                     bloqueado = true;
-
-                if (bloqueado is not true && casas[i][Posicao.y].condicao is Casa.Condicao.Desocupada)
+                else if (bloqueado is not true && casas[i][Posicao.y].condicao is Casa.Condicao.Desocupada)
                 {
                     Casa? esta = Tabuleiro.GetCasa(this);
                     if (esta is null) throw new Exception("Peça não está em um tabuleiro.");
@@ -69,13 +68,12 @@ namespace VLAR.Comum
 
             //Verificação de baixo
             bloqueado = false;
-            for (int i = Posicao.x + 1; i < casas.Count - 1; i++)
+            for (int i = Posicao.x + 1; i < casas.Count; i++)
             {
                 Casa analisanda = casas[i][Posicao.y];
-                if (analisanda.condicao is Casa.Condicao.Ocupada || analisanda.tipo is Casa.Tipo.Trono)
+                if (analisanda.condicao is Casa.Condicao.Ocupada || (this is not Rei && (analisanda.tipo is Casa.Tipo.Trono || analisanda.tipo is Casa.Tipo.Refugio)))
                     bloqueado = true;
-
-                if (bloqueado is not true && casas[i][Posicao.y].condicao is Casa.Condicao.Desocupada)
+                else if (bloqueado is not true && casas[i][Posicao.y].condicao is Casa.Condicao.Desocupada)
                 {
                     Casa? esta = Tabuleiro.GetCasa(this);
                     if (esta is null) throw new Exception("Peça não está em um tabuleiro.");
@@ -86,13 +84,12 @@ namespace VLAR.Comum
 
             //Verificação da direita
             bloqueado = false;
-            for (int i = Posicao.y + 1; i < casas[0].Count - 1; i++)
+            for (int i = Posicao.y + 1; i < casas[0].Count; i++)
             {
                 Casa analisanda = casas[Posicao.x][i];
-                if (analisanda.condicao is Casa.Condicao.Ocupada || analisanda.tipo is Casa.Tipo.Trono)
+                if (analisanda.condicao is Casa.Condicao.Ocupada || (this is not Rei && (analisanda.tipo is Casa.Tipo.Trono || analisanda.tipo is Casa.Tipo.Refugio)))
                     bloqueado = true;
-
-                if (bloqueado is not true && casas[Posicao.x][i].condicao is Casa.Condicao.Desocupada)
+                else if (bloqueado is not true && casas[Posicao.x][i].condicao is Casa.Condicao.Desocupada)
                 {
                     Casa? esta = Tabuleiro.GetCasa(this);
                     if (esta is null) throw new Exception("Peça não está em um tabuleiro.");
@@ -106,10 +103,9 @@ namespace VLAR.Comum
             for (int i = Posicao.y - 1; i > 0; i--)
             {
                 Casa analisanda = casas[Posicao.x][i];
-                if (analisanda.condicao is Casa.Condicao.Ocupada || analisanda.tipo is Casa.Tipo.Trono)
+                if (analisanda.condicao is Casa.Condicao.Ocupada || (this is not Rei && (analisanda.tipo is Casa.Tipo.Trono || analisanda.tipo is Casa.Tipo.Refugio)))
                     bloqueado = true;
-
-                if (bloqueado is not true && casas[Posicao.x][i].condicao is Casa.Condicao.Desocupada)
+                else if (bloqueado is not true && casas[Posicao.x][i].condicao is Casa.Condicao.Desocupada)
                 {
                     Casa? esta = Tabuleiro.GetCasa(this);
                     if (esta is null) throw new Exception("Peça não está em um tabuleiro.");
@@ -128,6 +124,14 @@ namespace VLAR.Comum
             Casa? casaVelha = Tabuleiro.GetCasa(Posicao);
             if (casaVelha is null) throw new Exception("Peça estava fora do tabuleiro. Erro indevído.");
 
+            foreach (List<Casa> coluna in Tabuleiro.casas)
+            {
+                foreach (Casa casa in coluna)
+                {
+                    casa.Movida = false;
+                }
+            }
+
             List<List<Casa>> casas = Tabuleiro.casas;
             Casa? novaCasa = null;
             if (sentido is Direcao.Cima || sentido is Direcao.Baixo)
@@ -136,25 +140,36 @@ namespace VLAR.Comum
                 if ((sentido is Direcao.Cima && Posicao.x + quanto < 0) || (sentido is Direcao.Baixo && Posicao.x + quanto > Tabuleiro.casas[0].Count))
                     throw new ArgumentException("Nova posição está fora do tabuleiro.");
 
-
                 novaCasa = Tabuleiro.GetCasa(Posicao.Somar(Posicao, new(quanto, 0)));
                 if (novaCasa is null)
                     return false;
+
+                if (novaCasa.tipo is Casa.Tipo.Refugio || novaCasa.tipo is Casa.Tipo.Trono) return false;
 
                 if (sentido is Direcao.Cima)
                 {
                     for (int i = Posicao.x - 1; i > novaCasa.Coordenada.x; i--)
                     {
-                        if (casas[i][Posicao.y].condicao is Casa.Condicao.Ocupada || casas[i][Posicao.y].tipo is Casa.Tipo.Trono || casas[Posicao.x][i].tipo is Casa.Tipo.Refugio)
+                        if (casas[i][Posicao.y].condicao is Casa.Condicao.Ocupada || casas[i][Posicao.y].tipo is Casa.Tipo.Trono || casas[i][Posicao.y].tipo is Casa.Tipo.Refugio)
                             return false;
+                    }
+
+                    for (int i = Posicao.x; i > novaCasa.Coordenada.x; i--)
+                    {
+                        casas[i][Posicao.y].Movida = true;
                     }
                 }
                 if (sentido is Direcao.Baixo)
                 {
                     for (int i = Posicao.x + 1; i < novaCasa.Coordenada.x; i++)
                     {
-                        if (casas[i][Posicao.y].condicao is Casa.Condicao.Ocupada || casas[i][Posicao.y].tipo is Casa.Tipo.Trono || casas[Posicao.x][i].tipo is Casa.Tipo.Refugio)
+                        if (casas[i][Posicao.y].condicao is Casa.Condicao.Ocupada || casas[i][Posicao.y].tipo is Casa.Tipo.Trono || casas[i][Posicao.y].tipo is Casa.Tipo.Refugio)
                             return false;
+                    }
+
+                    for (int i = Posicao.x; i < novaCasa.Coordenada.x; i++)
+                    {
+                        casas[i][Posicao.y].Movida = true;
                     }
                 }
             }
@@ -168,12 +183,19 @@ namespace VLAR.Comum
                 if (novaCasa is null)
                     return false;
 
+                if (novaCasa.tipo is Casa.Tipo.Refugio || novaCasa.tipo is Casa.Tipo.Trono) return false;
+
                 if (sentido is Direcao.Esquerda)
                 {
                     for (int i = Posicao.y - 1; i > novaCasa.Coordenada.y; i--)
                     {
                         if (casas[Posicao.x][i].condicao is Casa.Condicao.Ocupada || casas[Posicao.x][i].tipo is Casa.Tipo.Trono || casas[Posicao.x][i].tipo is Casa.Tipo.Refugio)
                             return false;
+                    }
+
+                    for (int i = Posicao.y; i > novaCasa.Coordenada.y; i--)
+                    {
+                        casas[Posicao.x][i].Movida = true;
                     }
                 }
                 if (sentido is Direcao.Direita)
@@ -183,11 +205,13 @@ namespace VLAR.Comum
                         if (casas[Posicao.x][i].condicao is Casa.Condicao.Ocupada || casas[Posicao.x][i].tipo is Casa.Tipo.Trono || casas[Posicao.x][i].tipo is Casa.Tipo.Refugio)
                             return false;
                     }
+
+                    for (int i = Posicao.y; i < novaCasa.Coordenada.y; i++)
+                    {
+                        casas[Posicao.x][i].Movida = true;
+                    }
                 }
             }
-
-
-            if (novaCasa.tipo is Casa.Tipo.Refugio || novaCasa.tipo is Casa.Tipo.Trono) return false;
 
             casaVelha.Ocupante = this;
             casaVelha.condicao = Casa.Condicao.Ocupada;

@@ -64,6 +64,22 @@ namespace VLAR.Comum
             return false;
         }
 
+        public override bool Equals(object? o)
+        {
+            if (o is Posicao)
+            {
+                var castado = (Posicao)o;
+                if (castado.x != x || castado.y != y) return true;
+            }
+
+            return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(x, y);
+        }
+
         static public Direcao Sentido(Posicao a, Posicao b)
         {
             var subtraidos = b - a;
