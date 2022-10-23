@@ -603,8 +603,8 @@ namespace VLAR.IA
                 double distanciaTronoPai = !(reiPai.Posicao - new Posicao(5, 5));
                 double distanciaTronoFilho = !(reiFilho.Posicao - new Posicao(5, 5));
 
-                if (distanciaRefugioFilho00 < 1 || distanciaRefugioFilho01 < 1
-                    || distanciaRefugioFilho10 < 1 || distanciaRefugioFilho11 < 1)
+                if (distanciaRefugioFilho00 <= 1.2 || distanciaRefugioFilho01 <= 1.2
+                    || distanciaRefugioFilho10 <= 1.2 || distanciaRefugioFilho11 <= 1.2)
                 {
                     if (Controlador == perspectiva)
                     {
@@ -613,7 +613,7 @@ namespace VLAR.IA
                     }
                     else
                     {
-                        pai.Peso = -100000;
+                        pai.Peso -= -1000000;
                         return -10000;
                     }
                 }
