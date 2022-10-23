@@ -98,7 +98,7 @@ namespace VLAR.Comum
                 {
                     for (int i = Posicao.y + 1; i < novaCasa.Coordenada.y; i++)
                     {
-                        if (casas[Posicao.x][i].condicao is Casa.Condicao.Ocupada || casas[Posicao.x][i].tipo is Casa.Tipo.Trono)
+                        if (casas[Posicao.x][i].condicao is Casa.Condicao.Ocupada)
                             return false;
                     }
 

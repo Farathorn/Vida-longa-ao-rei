@@ -156,8 +156,10 @@ public class JogoPadrao
 
                         DesenharTabuleiro();
 
-                        bot1.Etapas();
-                        Task.Delay(4000);
+                        if (!Jogo.JogoTerminado)
+                        {
+                            bot1.Etapas();
+                        }
                     }
 
                     DesenharTabuleiro();
@@ -189,9 +191,12 @@ public class JogoPadrao
                     Task.Delay(3000);
                     bot1.Etapas();
                     DesenharTabuleiro();
-                    Task.Delay(3000);
-                    bot2.Etapas();
-                    DesenharTabuleiro();
+                    if (!Jogo.JogoTerminado)
+                    {
+                        Task.Delay(3000);
+                        bot2.Etapas();
+                        DesenharTabuleiro();
+                    }
                 }
             }
             catch (Exception exception)

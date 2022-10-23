@@ -37,11 +37,6 @@ namespace VLAR.Comum
                 }
             }
 
-            foreach (Movimento movimento in copiando.logMovimentos)
-            {
-                logMovimentos.Add(new Movimento(movimento));
-            }
-
             foreach (Mercenario mercenario in copiando.mercenarios)
             {
                 var novo = new Mercenario(mercenario, this);
@@ -87,6 +82,21 @@ namespace VLAR.Comum
                 var novaCasa = new Casa(CasaCopiona);
                 if (novaCasa is null) throw new Exception("Casa inválida.");
                 novaCasa.Ocupante = Rei;
+            }
+
+            foreach (Movimento movimento in copiando.logMovimentos)
+            {
+                Movimento? movimentoNovo = new(movimento);
+                Peca? pecaEncontrada = pecas.Find(peca =>
+                {
+                    if (peca is not null && peca.Posicao == movimento.peca.Posicao) return true;
+                    return false;
+                });
+                if (pecaEncontrada is not null)
+                {
+                    movimentoNovo.peca = pecaEncontrada;
+                    logMovimentos.Add(new Movimento(movimento));
+                }
             }
         }
 
@@ -190,6 +200,7 @@ namespace VLAR.Comum
 
         public void AtacanteGanha()
         {
+            rei = false;
             JogoTerminado = true;
         }
 
@@ -229,7 +240,7 @@ namespace VLAR.Comum
 
                     if (pecaCercada is not null && pecaCercada is Soldado && casaCercante.Ocupante is Mercenario)
                         RemoverPeca(pecaCercada);
-                    else if (conferida is not null && pecaCercada is not null && pecaCercada is Rei && casaCercante.tipo is Casa.Tipo.Trono)
+                    else if (conferida is not null && pecaCercada is not null && pecaCercada is Rei && (casaCercante.tipo is Casa.Tipo.Trono || casaCercante.Ocupante is Mercenario))
                     {
                         var daDireita = GetCasa(conferida.Coordenada + new Posicao(0, 1));
                         var daEsquerda = GetCasa(conferida.Coordenada + new Posicao(0, -1));
@@ -269,7 +280,7 @@ namespace VLAR.Comum
 
                     if (pecaCercada is not null && pecaCercada is Soldado && casaCercante.Ocupante is Mercenario)
                         RemoverPeca(pecaCercada);
-                    else if (conferida is not null && pecaCercada is not null && pecaCercada is Rei && casaCercante.tipo is Casa.Tipo.Trono)
+                    else if (conferida is not null && pecaCercada is not null && pecaCercada is Rei && (casaCercante.tipo is Casa.Tipo.Trono || casaCercante.Ocupante is Mercenario))
                     {
                         var deCima = GetCasa(conferida.Coordenada + new Posicao(0, 1));
                         var deBaixo = GetCasa(conferida.Coordenada + new Posicao(0, -1));
@@ -309,7 +320,7 @@ namespace VLAR.Comum
 
                     if (pecaCercada is not null && pecaCercada is Soldado && casaCercante.Ocupante is Mercenario)
                         RemoverPeca(pecaCercada);
-                    else if (conferida is not null && pecaCercada is not null && pecaCercada is Rei && casaCercante.tipo is Casa.Tipo.Trono)
+                    else if (conferida is not null && pecaCercada is not null && pecaCercada is Rei && (casaCercante.tipo is Casa.Tipo.Trono || casaCercante.Ocupante is Mercenario))
                     {
                         var daDireita = GetCasa(conferida.Coordenada + new Posicao(1, 0));
                         var daEsquerda = GetCasa(conferida.Coordenada + new Posicao(-1, 0));
@@ -349,7 +360,7 @@ namespace VLAR.Comum
 
                     if (pecaCercada is not null && pecaCercada is Soldado && casaCercante.Ocupante is Mercenario)
                         RemoverPeca(pecaCercada);
-                    else if (conferida is not null && pecaCercada is not null && pecaCercada is Rei && casaCercante.tipo is Casa.Tipo.Trono)
+                    else if (conferida is not null && pecaCercada is not null && pecaCercada is Rei && (casaCercante.tipo is Casa.Tipo.Trono || casaCercante.Ocupante is Mercenario))
                     {
                         var daDireita = GetCasa(conferida.Coordenada + new Posicao(1, 0));
                         var daEsquerda = GetCasa(conferida.Coordenada + new Posicao(-1, 0));
@@ -433,6 +444,42 @@ namespace VLAR.Comum
             this.origem = origem;
             this.destino = destino;
             this.peca = peca;
+        }
+
+        public static bool operator ==(Movimento a, Movimento b)
+        {
+            if (a.origem.Coordenada == b.origem.Coordenada
+                && a.destino.Coordenada == b.destino.Coordenada
+                && a.peca.ID == b.peca.ID
+                && a.peca.Posicao == b.peca.Posicao)
+                return true;
+            return false;
+        }
+
+        public static bool operator !=(Movimento a, Movimento b)
+        {
+            if (a.origem.Coordenada != b.origem.Coordenada
+                || a.destino.Coordenada != b.destino.Coordenada
+                || a.peca.ID != b.peca.ID
+                || a.peca.Posicao != b.peca.Posicao)
+                return true;
+            return false;
+        }
+
+        public override bool Equals(object? o)
+        {
+            if (o is Movimento)
+            {
+                var castado = (Movimento)o;
+                if ((Movimento)o == this) return true;
+            }
+
+            return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(origem, destino, peca);
         }
     }
 }

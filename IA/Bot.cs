@@ -28,6 +28,8 @@ namespace VLAR.IA
 
         public void Etapas()
         {
+            if (Jogo.JogoTerminado) return;
+
             GerarArvore();
 
             possibilidadeEscolhida = Trace.Last().Objeto;
@@ -102,10 +104,9 @@ namespace VLAR.IA
             fila.AddLast(NoID);
 
             No<Tabuleiro>? deMelhorPeso = null;
+            No<Tabuleiro>? deMelhorPesoNoAnterior = null;
 
             long quantidadeAnalisada = 0;
-
-            long? idQueRecalculou = null;
 
             long i = 0;
             long iAnterior = 0;
@@ -116,16 +117,22 @@ namespace VLAR.IA
                 fila.RemoveFirst();
                 if (primeiroDaFila is not null)
                 {
+                    No<Tabuleiro> NoAnterior;
                     No = ArvoreDePossibilidades.listaOrdenadaLargura[(int)primeiroDaFila];
                     if (No is null) throw new Exception("Erro desconhecido");
 
-                    No<Tabuleiro>? noRuim = No.Filhos.Find((no) =>
+                    if (No.eNoRuim)
                     {
-                        if (no is not null && no.eNoRuim) return true;
-                        return false;
-                    });
-
-                    if (noRuim is not null) No = noRuim;
+                        if (No.Filhos.Any((noFilho) =>
+                        {
+                            if (noFilho is not null && noFilho == deMelhorPeso) return true;
+                            return false;
+                        }))
+                        {
+                            deMelhorPeso = deMelhorPesoNoAnterior;
+                            anterior = null;
+                        }
+                    }
 
                     int indiceFilhos = 0;
 
@@ -143,8 +150,6 @@ namespace VLAR.IA
                     if (No.profundidade % 2 == 0) CalcularMovimentos(No.Objeto, Controlador);
                     else CalcularMovimentos(No.Objeto, Jogador.GerarOpostoDe(Controlador));
 
-
-
                     bool noReconsiderado = false;
 
                     if (No.profundidade < profundidade && !fila.Contains(NoID))
@@ -156,8 +161,8 @@ namespace VLAR.IA
                                 quantidadeAnalisada++;
 
                                 No<Tabuleiro>? filho;
-                                long? pesoNoAntes;
-                                if (No != noRuim)
+                                double? pesoNoAntes;
+                                if (!No.eNoRuim)
                                 {
                                     filho = new(No);
                                     if (NoID is null)
@@ -176,7 +181,7 @@ namespace VLAR.IA
                                                                             (int)!(jogadaPossivel.origem.Coordenada - jogadaPossivel.destino.Coordenada));
 
                                     //Heurística
-                                    if (i % 2 == 0) filho.Peso -= Heurística(filho, No, Jogador.GerarOpostoDe(Controlador));
+                                    if (i % 2 == 0) filho.Peso += Heurística(filho, No, Jogador.GerarOpostoDe(Controlador));
                                     else filho.Peso += Heurística(filho, No, Controlador);
 
                                     long? id = null;
@@ -195,8 +200,10 @@ namespace VLAR.IA
                                                 fila.AddLast(id);
                                             }
 
-                                            if (deMelhorPeso is null) deMelhorPeso = ArvoreDePossibilidades.listaOrdenadaLargura[(int)id];
-                                            else if (deMelhorPeso.Peso < filho.Peso) deMelhorPeso = ArvoreDePossibilidades.listaOrdenadaLargura[(int)id];
+                                            if (deMelhorPeso is null || deMelhorPeso.Peso < filho.Peso)
+                                            {
+                                                deMelhorPeso = ArvoreDePossibilidades.listaOrdenadaLargura[(int)id];
+                                            }
                                         }
                                         else if (anterior.Peso == filho.Peso && anterior.Valor is not null)
                                         {
@@ -216,8 +223,10 @@ namespace VLAR.IA
                                                     fila.AddLast(id);
                                                 }
 
-                                                if (deMelhorPeso is null) deMelhorPeso = ArvoreDePossibilidades.listaOrdenadaLargura[(int)id];
-                                                else if (deMelhorPeso.Peso < filho.Peso) deMelhorPeso = ArvoreDePossibilidades.listaOrdenadaLargura[(int)id];
+                                                if (deMelhorPeso is null || deMelhorPeso.Peso < filho.Peso)
+                                                {
+                                                    deMelhorPeso = ArvoreDePossibilidades.listaOrdenadaLargura[(int)id];
+                                                }
                                             }
                                         }
                                     }
@@ -233,34 +242,36 @@ namespace VLAR.IA
                                             fila.AddLast(id);
                                         }
 
-                                        if (deMelhorPeso is null) deMelhorPeso = ArvoreDePossibilidades.listaOrdenadaLargura[(int)id];
-                                        else if (deMelhorPeso.Peso < filho.Peso) deMelhorPeso = ArvoreDePossibilidades.listaOrdenadaLargura[(int)id];
+                                        if (deMelhorPeso is null || deMelhorPeso.Peso < filho.Peso)
+                                        {
+                                            deMelhorPeso = ArvoreDePossibilidades.listaOrdenadaLargura[(int)id];
+                                        }
                                     }
 
-                                    if (No.Pai is not null && No.Peso != pesoNoAntes && anterior is not null && anterior.Valor != idQueRecalculou)
+                                    if (No.Pai is not null && No.Peso != pesoNoAntes && anterior is not null && !filho.eNoQueRecalculou)
                                     {
                                         noReconsiderado = true;
                                         No.eNoRuim = true;
                                         anterior.eNoQueRecalculou = true;
-                                        fila.AddFirst(No.Pai.Valor);
+                                        fila.AddFirst(No.Valor);
                                         foreach (No<Tabuleiro>? filhoIgnorando in No.Filhos)
                                         {
                                             if (filhoIgnorando is not null)
-                                                fila.RemoveLast();
+                                                fila.Remove(filhoIgnorando.Valor);
                                         }
                                         break;
                                     }
                                 }
                                 else
                                 {
-                                    if (indiceFilhos < No.Filhos.Count - 1)
+                                    if (indiceFilhos < No.Filhos.Count)
                                     {
                                         filho = No.Filhos[indiceFilhos];
                                         if (filho is not null)
                                         {
                                             filho.Peso = No.Peso;
 
-                                            if (i % 2 == 0) filho.Peso -= Heurística(filho, No, Jogador.GerarOpostoDe(Controlador));
+                                            if (i % 2 == 0) filho.Peso += Heurística(filho, No, Jogador.GerarOpostoDe(Controlador));
                                             else filho.Peso += Heurística(filho, No, Controlador);
 
                                             long? id = null;
@@ -269,18 +280,21 @@ namespace VLAR.IA
 
                                                 if (anterior is null || anterior.Peso < filho.Peso)
                                                 {
-                                                    id = ArvoreDePossibilidades.Adicionar(filho.Objeto, NoID);
-                                                    if (id is null) throw new Exception("Item não adicionado.");
-
-                                                    anterior = ArvoreDePossibilidades.listaOrdenadaLargura[(int)id];
-                                                    if (anterior is not null)
+                                                    if (filho.Valor is not null)
                                                     {
-                                                        anterior.Peso = filho.Peso;
-                                                        fila.AddLast(id);
+                                                        anterior = ArvoreDePossibilidades.listaOrdenadaLargura[(int)filho.Valor];
+                                                        if (anterior is not null)
+                                                        {
+                                                            anterior.Peso = filho.Peso;
+                                                            fila.AddLast(id);
+                                                        }
+
+                                                        if (deMelhorPeso is null || deMelhorPeso.Peso < filho.Peso)
+                                                        {
+                                                            deMelhorPeso = ArvoreDePossibilidades.listaOrdenadaLargura[(int)filho.Valor];
+                                                        }
                                                     }
 
-                                                    if (deMelhorPeso is null) deMelhorPeso = ArvoreDePossibilidades.listaOrdenadaLargura[(int)id];
-                                                    else if (deMelhorPeso.Peso < filho.Peso) deMelhorPeso = ArvoreDePossibilidades.listaOrdenadaLargura[(int)id];
                                                 }
                                                 else if (anterior.Peso == filho.Peso && anterior.Valor is not null)
                                                 {
@@ -288,37 +302,41 @@ namespace VLAR.IA
 
                                                     if (rand.NextDouble() >= 0.5)
                                                     {
-                                                        ArvoreDePossibilidades.listaOrdenadaLargura[(int)anterior.Valor] = null;
-
-                                                        id = ArvoreDePossibilidades.Adicionar(filho.Objeto, NoID);
-                                                        if (id is null) throw new Exception("Item não adicionado.");
-
-                                                        anterior = ArvoreDePossibilidades.listaOrdenadaLargura[(int)id];
-                                                        if (anterior is not null)
+                                                        if (filho.Valor is not null)
                                                         {
-                                                            anterior.Peso = filho.Peso;
-                                                            fila.AddLast(id);
-                                                        }
+                                                            ArvoreDePossibilidades.listaOrdenadaLargura[(int)anterior.Valor] = null;
 
-                                                        if (deMelhorPeso is null) deMelhorPeso = ArvoreDePossibilidades.listaOrdenadaLargura[(int)id];
-                                                        else if (deMelhorPeso.Peso < filho.Peso) deMelhorPeso = ArvoreDePossibilidades.listaOrdenadaLargura[(int)id];
+                                                            anterior = ArvoreDePossibilidades.listaOrdenadaLargura[(int)filho.Valor];
+                                                            if (anterior is not null)
+                                                            {
+                                                                anterior.Peso = filho.Peso;
+                                                                fila.AddLast(id);
+                                                            }
+
+                                                            if (deMelhorPeso is null || deMelhorPeso.Peso < filho.Peso)
+                                                            {
+                                                                deMelhorPeso = ArvoreDePossibilidades.listaOrdenadaLargura[(int)filho.Valor];
+                                                            }
+                                                        }
                                                     }
                                                 }
                                             }
                                             else
                                             {
-                                                id = ArvoreDePossibilidades.Adicionar(filho.Objeto, NoID);
-                                                if (id is null) throw new Exception("Item não adicionado.");
-
-                                                anterior = ArvoreDePossibilidades.listaOrdenadaLargura[(int)id];
-                                                if (anterior is not null)
+                                                if (filho.Valor is not null)
                                                 {
-                                                    anterior.Peso = filho.Peso;
-                                                    fila.AddLast(id);
-                                                }
+                                                    anterior = ArvoreDePossibilidades.listaOrdenadaLargura[(int)filho.Valor];
+                                                    if (anterior is not null)
+                                                    {
+                                                        anterior.Peso = filho.Peso;
+                                                        fila.AddLast(id);
+                                                    }
 
-                                                if (deMelhorPeso is null) deMelhorPeso = ArvoreDePossibilidades.listaOrdenadaLargura[(int)id];
-                                                else if (deMelhorPeso.Peso < filho.Peso) deMelhorPeso = ArvoreDePossibilidades.listaOrdenadaLargura[(int)id];
+                                                    if (deMelhorPeso is null || deMelhorPeso.Peso < filho.Peso)
+                                                    {
+                                                        deMelhorPeso = ArvoreDePossibilidades.listaOrdenadaLargura[(int)filho.Valor];
+                                                    }
+                                                }
                                             }
                                         }
                                     }
@@ -343,7 +361,7 @@ namespace VLAR.IA
                                                                                 (int)!(jogadaPossivel.origem.Coordenada - jogadaPossivel.destino.Coordenada));
 
                                         //Heurística
-                                        if (i % 2 == 0) filho.Peso -= Heurística(filho, No, Jogador.GerarOpostoDe(Controlador));
+                                        if (i % 2 == 0) filho.Peso += Heurística(filho, No, Jogador.GerarOpostoDe(Controlador));
                                         else filho.Peso += Heurística(filho, No, Controlador);
 
                                         long? id = null;
@@ -362,8 +380,10 @@ namespace VLAR.IA
                                                     fila.AddLast(id);
                                                 }
 
-                                                if (deMelhorPeso is null) deMelhorPeso = ArvoreDePossibilidades.listaOrdenadaLargura[(int)id];
-                                                else if (deMelhorPeso.Peso < filho.Peso) deMelhorPeso = ArvoreDePossibilidades.listaOrdenadaLargura[(int)id];
+                                                if (deMelhorPeso is null || deMelhorPeso.Peso < filho.Peso)
+                                                {
+                                                    deMelhorPeso = ArvoreDePossibilidades.listaOrdenadaLargura[(int)id];
+                                                }
                                             }
                                             else if (anterior.Peso == filho.Peso && anterior.Valor is not null)
                                             {
@@ -383,8 +403,10 @@ namespace VLAR.IA
                                                         fila.AddLast(id);
                                                     }
 
-                                                    if (deMelhorPeso is null) deMelhorPeso = ArvoreDePossibilidades.listaOrdenadaLargura[(int)id];
-                                                    else if (deMelhorPeso.Peso < filho.Peso) deMelhorPeso = ArvoreDePossibilidades.listaOrdenadaLargura[(int)id];
+                                                    if (deMelhorPeso is null || deMelhorPeso.Peso < filho.Peso)
+                                                    {
+                                                        deMelhorPeso = ArvoreDePossibilidades.listaOrdenadaLargura[(int)id];
+                                                    }
                                                 }
                                             }
                                         }
@@ -400,16 +422,18 @@ namespace VLAR.IA
                                                 fila.AddLast(id);
                                             }
 
-                                            if (deMelhorPeso is null) deMelhorPeso = ArvoreDePossibilidades.listaOrdenadaLargura[(int)id];
-                                            else if (deMelhorPeso.Peso < filho.Peso) deMelhorPeso = ArvoreDePossibilidades.listaOrdenadaLargura[(int)id];
+                                            if (deMelhorPeso is null || deMelhorPeso.Peso < filho.Peso)
+                                            {
+                                                deMelhorPeso = ArvoreDePossibilidades.listaOrdenadaLargura[(int)id];
+                                            }
                                         }
 
-                                        if (No.Pai is not null && No.Peso != pesoNoAntes && anterior is not null && anterior.Valor != idQueRecalculou)
+                                        if (No.Pai is not null && No.Peso != pesoNoAntes && anterior is not null && !filho.eNoQueRecalculou)
                                         {
                                             noReconsiderado = true;
                                             No.eNoRuim = true;
                                             anterior.eNoQueRecalculou = true;
-                                            fila.AddFirst(No.Pai.Valor);
+                                            fila.AddFirst(No.Valor);
                                             foreach (No<Tabuleiro>? filhoIgnorando in No.Filhos)
                                             {
                                                 if (filhoIgnorando is not null)
@@ -419,9 +443,17 @@ namespace VLAR.IA
                                         }
                                     }
                                 }
+
+                                indiceFilhos++;
                             }
 
                             if (noReconsiderado) break;
+                        }
+                        if (!noReconsiderado)
+                        {
+                            No.eNoRuim = false;
+                            NoAnterior = No;
+                            deMelhorPesoNoAnterior = deMelhorPeso;
                         }
                     }
                 }
@@ -445,30 +477,30 @@ namespace VLAR.IA
 
             if (perspectiva is Atacante)
             {
-                if (!filho.Objeto.rei) pesoEstimado += 300;
+                if (!filho.Objeto.rei) pesoEstimado += 10000;
                 if (filho.Objeto.soldados.Count < pai.Objeto.soldados.Count)
                 {
-                    pesoEstimado += 60 * (pai.Objeto.soldados.Count - filho.Objeto.soldados.Count);
+                    pesoEstimado += 150 * (pai.Objeto.soldados.Count - filho.Objeto.soldados.Count);
 
 
                     if (Controlador != perspectiva)
                     {
-
-                        pai.Peso -= 150 * (pai.Objeto.soldados.Count - filho.Objeto.soldados.Count);
+                        pesoEstimado -= 300 * (pai.Objeto.soldados.Count - filho.Objeto.soldados.Count);
+                        pai.Peso -= 2000 * (pai.Objeto.soldados.Count - filho.Objeto.soldados.Count);
                     }
                 }
-
-                if (Controlador != perspectiva && !filho.Objeto.rei) pai.Peso -= 10000;
+                if (!filho.Objeto.rei && Controlador != perspectiva) pai.Peso = -10000;
             }
             else
             {
                 if (filho.Objeto.mercenarios.Count < pai.Objeto.mercenarios.Count)
                 {
-                    pesoEstimado += 40 * (pai.Objeto.mercenarios.Count - filho.Objeto.mercenarios.Count);
+                    pesoEstimado += 300 * (pai.Objeto.mercenarios.Count - filho.Objeto.mercenarios.Count);
 
                     if (Controlador != perspectiva)
                     {
-                        pai.Peso -= 30 * (pai.Objeto.mercenarios.Count - filho.Objeto.mercenarios.Count);
+                        pesoEstimado -= 600 * (pai.Objeto.mercenarios.Count - filho.Objeto.mercenarios.Count);
+                        pai.Peso -= 600 * (pai.Objeto.mercenarios.Count - filho.Objeto.mercenarios.Count);
                     }
                 }
             }
@@ -482,47 +514,63 @@ namespace VLAR.IA
 
             if (perspectiva is Atacante)
             {
-                Casa? lateral = filho.Objeto.GetCasa(filho.Objeto.pecas.Last().Posicao + new Posicao(1, 0));
-                if (lateral is not null && lateral.Ocupante is Mercenario) pesoEstimado++;
+                if (Controlador == perspectiva)
+                {
+                    Rei? rei = (Rei?)filho.Objeto.pecas.Find((peca) =>
+                    {
+                        if (peca is Rei) return true;
+                        return false;
+                    });
+                    if (rei is null) return 10000;
 
-                lateral = filho.Objeto.GetCasa(filho.Objeto.pecas.Last().Posicao + new Posicao(-1, 0));
-                if (lateral is not null && lateral.Ocupante is Mercenario) pesoEstimado++;
+                    Casa? lateral = filho.Objeto.GetCasa(rei.Posicao + new Posicao(1, 0));
+                    if (lateral is not null && lateral.Ocupante is Mercenario) pesoEstimado++;
 
-                lateral = filho.Objeto.GetCasa(filho.Objeto.pecas.Last().Posicao + new Posicao(0, -1));
-                if (lateral is not null && lateral.Ocupante is Mercenario) pesoEstimado++;
+                    lateral = filho.Objeto.GetCasa(rei.Posicao + new Posicao(-1, 0));
+                    if (lateral is not null && lateral.Ocupante is Mercenario) pesoEstimado++;
 
-                lateral = filho.Objeto.GetCasa(filho.Objeto.pecas.Last().Posicao + new Posicao(0, 1));
-                if (lateral is not null && lateral.Ocupante is Mercenario) pesoEstimado++;
+                    lateral = filho.Objeto.GetCasa(rei.Posicao + new Posicao(0, -1));
+                    if (lateral is not null && lateral.Ocupante is Mercenario) pesoEstimado++;
 
-                pesoEstimado *= 5;
+                    lateral = filho.Objeto.GetCasa(rei.Posicao + new Posicao(0, 1));
+                    if (lateral is not null && lateral.Ocupante is Mercenario) pesoEstimado++;
+
+                    pesoEstimado *= 4;
+                }
+                else
+                {
+                    pai.Peso -= (pesoEstimado * 40);
+                }
+
             }
-            else
+            else if (perspectiva is Defensor && Controlador == perspectiva)
             {
                 Casa? lateral = filho.Objeto.GetCasa(filho.Objeto.pecas.Last().Posicao + new Posicao(1, 0));
-                if (lateral is not null && lateral.Ocupante is Mercenario) pesoEstimado++;
+                if (lateral is not null && (lateral.Ocupante is Mercenario || lateral.Ocupante is Soldado)) pesoEstimado--;
 
                 lateral = filho.Objeto.GetCasa(filho.Objeto.pecas.Last().Posicao + new Posicao(-1, 0));
-                if (lateral is not null && lateral.Ocupante is Mercenario) pesoEstimado++;
+                if (lateral is not null && (lateral.Ocupante is Mercenario || lateral.Ocupante is Soldado)) pesoEstimado--;
 
                 lateral = filho.Objeto.GetCasa(filho.Objeto.pecas.Last().Posicao + new Posicao(0, -1));
-                if (lateral is not null && lateral.Ocupante is Mercenario) pesoEstimado++;
+                if (lateral is not null && (lateral.Ocupante is Mercenario || lateral.Ocupante is Soldado)) pesoEstimado--;
 
                 lateral = filho.Objeto.GetCasa(filho.Objeto.pecas.Last().Posicao + new Posicao(0, 1));
-                if (lateral is not null && lateral.Ocupante is Mercenario) pesoEstimado++;
+                if (lateral is not null && (lateral.Ocupante is Mercenario || lateral.Ocupante is Soldado)) pesoEstimado--;
 
-                pesoEstimado *= 5;
+                pesoEstimado *= 6;
             }
 
             return pesoEstimado;
         }
 
-        private int CalculoDistanciaReiRefugio(No<Tabuleiro> pai, No<Tabuleiro> filho, Jogador perspectiva)
+        private double CalculoDistanciaReiRefugio(No<Tabuleiro> pai, No<Tabuleiro> filho, Jogador perspectiva)
         {
-            int pesoEstimado = 0;
+            double pesoEstimado = 0;
 
             if (perspectiva is Defensor)
             {
-                if (!filho.Objeto.rei && perspectiva is Atacante) return 10000;
+                if (!filho.Objeto.rei && Controlador != perspectiva) return 10000;
+                else if (!filho.Objeto.rei) return -10000;
 
                 Rei? reiFilho = (Rei?)filho.Objeto.pecas.Find(peca =>
                 {
@@ -543,56 +591,70 @@ namespace VLAR.IA
                 double distanciaRefugioPai00 = !(reiPai.Posicao - new Posicao(0, 0));
                 double distanciaRefugioFilho00 = !(reiFilho.Posicao - new Posicao(0, 0));
 
-                double distanciaRefugioPai01 = !(reiPai.Posicao - new Posicao(0, filho.Objeto.casas[0].Count));
-                double distanciaRefugioFilho01 = !(reiFilho.Posicao - new Posicao(0, filho.Objeto.casas[0].Count));
+                double distanciaRefugioPai01 = !(reiPai.Posicao - new Posicao(0, filho.Objeto.casas[0].Count - 1));
+                double distanciaRefugioFilho01 = !(reiFilho.Posicao - new Posicao(0, filho.Objeto.casas[0].Count - 1));
 
-                double distanciaRefugioPai10 = !(reiPai.Posicao - new Posicao(filho.Objeto.casas.Count, 0));
-                double distanciaRefugioFilho10 = !(reiFilho.Posicao - new Posicao(filho.Objeto.casas.Count, 0));
+                double distanciaRefugioPai10 = !(reiPai.Posicao - new Posicao(filho.Objeto.casas.Count - 1, 0));
+                double distanciaRefugioFilho10 = !(reiFilho.Posicao - new Posicao(filho.Objeto.casas.Count - 1, 0));
 
-                double distanciaRefugioPai11 = !(reiPai.Posicao - new Posicao(filho.Objeto.casas.Count, filho.Objeto.casas[0].Count));
-                double distanciaRefugioFilho11 = !(reiFilho.Posicao - new Posicao(filho.Objeto.casas.Count, filho.Objeto.casas[0].Count));
+                double distanciaRefugioPai11 = !(reiPai.Posicao - new Posicao(filho.Objeto.casas.Count - 1, filho.Objeto.casas[0].Count - 1));
+                double distanciaRefugioFilho11 = !(reiFilho.Posicao - new Posicao(filho.Objeto.casas.Count - 1, filho.Objeto.casas[0].Count - 1));
 
                 double distanciaTronoPai = !(reiPai.Posicao - new Posicao(5, 5));
                 double distanciaTronoFilho = !(reiFilho.Posicao - new Posicao(5, 5));
 
-                if (distanciaRefugioFilho00 == 0 || distanciaRefugioFilho01 == 0
-                    || distanciaRefugioFilho10 == 0 || distanciaRefugioFilho11 == 0)
+                if (distanciaRefugioFilho00 < 1 || distanciaRefugioFilho01 < 1
+                    || distanciaRefugioFilho10 < 1 || distanciaRefugioFilho11 < 1)
                 {
                     if (Controlador == perspectiva)
                     {
-                        pesoEstimado = 300;
+                        pesoEstimado = 100000;
                         return pesoEstimado;
                     }
                     else
                     {
-                        pai.Peso -= 10000;
+                        pai.Peso = -100000;
                         return -10000;
                     }
                 }
 
-                int pesoDistancia00 = (int)((7 / distanciaRefugioFilho00) * distanciaTronoFilho);
-                int pesoDistancia01 = (int)((7 / distanciaRefugioFilho01) * distanciaTronoFilho);
-                int pesoDistancia10 = (int)((7 / distanciaRefugioFilho10) * distanciaTronoFilho);
-                int pesoDistancia11 = (int)((7 / distanciaRefugioFilho11) * distanciaTronoFilho);
+                double pesoDistancia00 = Math.Abs(1 - distanciaRefugioFilho00 / 7.0);
+                if (pesoDistancia00 < 0) pesoDistancia00 = 0;
+                double pesoDistancia01 = Math.Abs(2 - distanciaRefugioFilho01 / 7.0);
+                if (pesoDistancia01 < 0) pesoDistancia01 = 0;
+                double pesoDistancia10 = Math.Abs(2 - distanciaRefugioFilho10 / 7.0);
+                if (pesoDistancia10 < 0) pesoDistancia10 = 0;
+                double pesoDistancia11 = Math.Abs(2 - distanciaRefugioFilho11 / 7.0);
+                if (pesoDistancia11 < 0) pesoDistancia11 = 0;
 
-                if (distanciaRefugioPai00 > distanciaRefugioFilho00) pesoEstimado += 3 * pesoDistancia00 * (int)(distanciaRefugioPai00 - distanciaRefugioFilho00);
-                if (distanciaRefugioPai00 < distanciaRefugioFilho00) pesoEstimado -= 3 * pesoDistancia00 * (int)(distanciaRefugioFilho00 - distanciaRefugioPai00);
-
-
-                if (distanciaRefugioPai01 > distanciaRefugioFilho01) pesoEstimado += 3 * pesoDistancia01 * (int)(distanciaRefugioPai01 - distanciaRefugioFilho01);
-                if (distanciaRefugioPai01 < distanciaRefugioFilho01) pesoEstimado -= 3 * pesoDistancia01 * (int)(distanciaRefugioFilho01 - distanciaRefugioPai01);
-
-
-                if (distanciaRefugioPai10 > distanciaRefugioFilho10) pesoEstimado += 3 * pesoDistancia10 * (int)(distanciaRefugioPai10 - distanciaRefugioFilho10);
-                if (distanciaRefugioPai10 < distanciaRefugioFilho10) pesoEstimado -= 3 * pesoDistancia10 * (int)(distanciaRefugioFilho10 - distanciaRefugioPai10);
-
-
-                if (distanciaRefugioPai11 > distanciaRefugioFilho11) pesoEstimado += 3 * pesoDistancia10 * (int)(distanciaRefugioPai11 - distanciaRefugioFilho11);
-                if (distanciaRefugioPai11 < distanciaRefugioFilho11) pesoEstimado -= 3 * pesoDistancia10 * (int)(distanciaRefugioFilho11 - distanciaRefugioPai11);
-
-                if (Controlador != perspectiva)
+                if (Controlador == perspectiva)
                 {
-                    pai.Peso -= (int?)((int)pesoEstimado * 1.5);
+                    if (distanciaRefugioPai00 > distanciaRefugioFilho00) pesoEstimado += 50.0 * pesoDistancia00;
+
+
+                    if (distanciaRefugioPai01 > distanciaRefugioFilho01) pesoEstimado += 50.0 * pesoDistancia01;
+
+
+                    if (distanciaRefugioPai10 > distanciaRefugioFilho10) pesoEstimado += 50.0 * pesoDistancia10;
+
+
+                    if (distanciaRefugioPai11 > distanciaRefugioFilho11) pesoEstimado += 50.0 * pesoDistancia10;
+                }
+                else if (Controlador != perspectiva)
+                {
+
+                    if (distanciaRefugioPai00 > distanciaRefugioFilho00) pesoEstimado -= 70.0 * pesoDistancia00;
+
+
+                    if (distanciaRefugioPai01 > distanciaRefugioFilho01) pesoEstimado -= 70.0 * pesoDistancia01;
+
+
+                    if (distanciaRefugioPai10 > distanciaRefugioFilho10) pesoEstimado -= 70.0 * pesoDistancia10;
+
+
+                    if (distanciaRefugioPai11 > distanciaRefugioFilho11) pesoEstimado -= 70.0 * pesoDistancia10;
+
+                    pai.Peso += pesoEstimado;
                 }
             }
 
@@ -621,9 +683,26 @@ namespace VLAR.IA
             return pesoEstimado;
         }
 
+        public int CalculoRepeticao(No<Tabuleiro> pai, No<Tabuleiro> filho, Jogador perspectiva)
+        {
+            int pesoEstimado = 0;
+
+            if (Controlador == perspectiva)
+            {
+                for (int i = 0; pai.Pai is not null && i < 10; i++)
+                {
+                    if (i % 2 == 1 && pai.Pai.Objeto.logMovimentos.Last() == filho.Objeto.logMovimentos.Last()) pesoEstimado -= 35;
+                }
+            }
+
+            return pesoEstimado;
+        }
+
         public int CalculoQuadrantes(Tabuleiro pai, Tabuleiro filho, Jogador perspectiva)
         {
             int pesoEstimado = 0;
+
+            if (filho.logMovimentos.Last().peca is Rei) return 0;
 
             double qtdeQuadranteCentralMercenarios = 0;
             double qtdeQuadranteCentralSoldados = 0;
@@ -701,38 +780,38 @@ namespace VLAR.IA
                 {
                     if (reiQuadrante00)
                     {
-                        pesoQuadrante00 = qtdeQuadrante00Mercenarios / 24;
+                        pesoQuadrante00 = qtdeQuadrante00Mercenarios / 12;
                     }
                     else if (reiQuadrante01)
                     {
-                        pesoQuadrante01 = qtdeQuadrante00Mercenarios / 24;
+                        pesoQuadrante01 = qtdeQuadrante00Mercenarios / 12;
                     }
                     else if (reiQuadrante10)
                     {
-                        pesoQuadrante10 = qtdeQuadrante00Mercenarios / 24;
+                        pesoQuadrante10 = qtdeQuadrante00Mercenarios / 12;
                     }
                     else if (reiQuadrante11)
                     {
-                        pesoQuadrante11 = qtdeQuadrante00Mercenarios / 24;
+                        pesoQuadrante11 = qtdeQuadrante00Mercenarios / 12;
                     }
                 }
                 else
                 {
                     if (reiQuadrante00)
                     {
-                        pesoQuadrante00 = qtdeQuadrante00Soldados / 12;
+                        pesoQuadrante00 = qtdeQuadrante00Soldados / 6;
                     }
                     else if (reiQuadrante01)
                     {
-                        pesoQuadrante01 = qtdeQuadrante00Soldados / 12;
+                        pesoQuadrante01 = qtdeQuadrante00Soldados / 6;
                     }
                     else if (reiQuadrante10)
                     {
-                        pesoQuadrante10 = qtdeQuadrante00Soldados / 12;
+                        pesoQuadrante10 = qtdeQuadrante00Soldados / 6;
                     }
                     else if (reiQuadrante11)
                     {
-                        pesoQuadrante11 = qtdeQuadrante00Soldados / 12;
+                        pesoQuadrante11 = qtdeQuadrante00Soldados / 6;
                     }
                 }
             }
@@ -754,10 +833,13 @@ namespace VLAR.IA
             return pesoEstimado;
         }
 
-        public int Heurística(No<Tabuleiro> noAnalisado, No<Tabuleiro> noPai, Jogador perspectiva)
+        public double Heurística(No<Tabuleiro> noAnalisado, No<Tabuleiro> noPai, Jogador perspectiva)
         {
-            int pesoCalculado = 0;
+            double pesoCalculado = 0;
+
             pesoCalculado += CalculoPecas(noPai, noAnalisado, perspectiva);
+            pesoCalculado += CalculoColadoNoRei(noPai, noAnalisado, perspectiva);
+            pesoCalculado += CalculoRepeticao(noPai, noAnalisado, perspectiva);
             pesoCalculado += CalculoDistanciaReiRefugio(noPai, noAnalisado, perspectiva);
             pesoCalculado += CalculoQuadrantes(noPai.Objeto, noAnalisado.Objeto, perspectiva);
             return pesoCalculado;
