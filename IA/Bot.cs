@@ -629,16 +629,16 @@ namespace VLAR.IA
 
                 if (Controlador == perspectiva)
                 {
-                    if (distanciaRefugioPai00 > distanciaRefugioFilho00) pesoEstimado += 50.0 * pesoDistancia00;
+                    if (distanciaRefugioPai00 > distanciaRefugioFilho00) pesoEstimado += 100.0 * pesoDistancia00;
 
 
-                    if (distanciaRefugioPai01 > distanciaRefugioFilho01) pesoEstimado += 50.0 * pesoDistancia01;
+                    if (distanciaRefugioPai01 > distanciaRefugioFilho01) pesoEstimado += 100.0 * pesoDistancia01;
 
 
-                    if (distanciaRefugioPai10 > distanciaRefugioFilho10) pesoEstimado += 50.0 * pesoDistancia10;
+                    if (distanciaRefugioPai10 > distanciaRefugioFilho10) pesoEstimado += 100.0 * pesoDistancia10;
 
 
-                    if (distanciaRefugioPai11 > distanciaRefugioFilho11) pesoEstimado += 50.0 * pesoDistancia10;
+                    if (distanciaRefugioPai11 > distanciaRefugioFilho11) pesoEstimado += 100.0 * pesoDistancia10;
                 }
                 else if (Controlador != perspectiva)
                 {
@@ -780,38 +780,38 @@ namespace VLAR.IA
                 {
                     if (reiQuadrante00)
                     {
-                        pesoQuadrante00 = qtdeQuadrante00Mercenarios / 12;
+                        pesoQuadrante00 = qtdeQuadrante00Mercenarios / 6;
                     }
                     else if (reiQuadrante01)
                     {
-                        pesoQuadrante01 = qtdeQuadrante00Mercenarios / 12;
+                        pesoQuadrante01 = qtdeQuadrante00Mercenarios / 6;
                     }
                     else if (reiQuadrante10)
                     {
-                        pesoQuadrante10 = qtdeQuadrante00Mercenarios / 12;
+                        pesoQuadrante10 = qtdeQuadrante00Mercenarios / 6;
                     }
                     else if (reiQuadrante11)
                     {
-                        pesoQuadrante11 = qtdeQuadrante00Mercenarios / 12;
+                        pesoQuadrante11 = qtdeQuadrante00Mercenarios / 6;
                     }
                 }
                 else
                 {
                     if (reiQuadrante00)
                     {
-                        pesoQuadrante00 = qtdeQuadrante00Soldados / 6;
+                        pesoQuadrante00 = qtdeQuadrante00Soldados / 3;
                     }
                     else if (reiQuadrante01)
                     {
-                        pesoQuadrante01 = qtdeQuadrante00Soldados / 6;
+                        pesoQuadrante01 = qtdeQuadrante00Soldados / 3;
                     }
                     else if (reiQuadrante10)
                     {
-                        pesoQuadrante10 = qtdeQuadrante00Soldados / 6;
+                        pesoQuadrante10 = qtdeQuadrante00Soldados / 3;
                     }
                     else if (reiQuadrante11)
                     {
-                        pesoQuadrante11 = qtdeQuadrante00Soldados / 6;
+                        pesoQuadrante11 = qtdeQuadrante00Soldados / 3;
                     }
                 }
             }

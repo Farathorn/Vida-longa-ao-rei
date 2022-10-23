@@ -159,10 +159,12 @@ public class JogoPadrao
                         if (!Jogo.JogoTerminado)
                         {
                             bot1.Etapas();
+                            DesenharTabuleiro();
                         }
                     }
+                    if (Jogo.JogoTerminado && Jogo.rei) Console.WriteLine("Defensor vence!\n");
+                    else if (Jogo.JogoTerminado && !Jogo.rei) Console.WriteLine("Atacante vence!\n");
 
-                    DesenharTabuleiro();
                 }
             }
             catch (Exception exception)
@@ -198,6 +200,9 @@ public class JogoPadrao
                         DesenharTabuleiro();
                     }
                 }
+
+                if (Jogo.JogoTerminado && Jogo.rei) Console.WriteLine("Defensor vence!\n");
+                else if (Jogo.JogoTerminado && !Jogo.rei) Console.WriteLine("Atacante vence!\n");
             }
             catch (Exception exception)
             {
