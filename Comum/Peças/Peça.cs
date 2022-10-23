@@ -52,7 +52,7 @@ namespace VLAR.Comum
 
             //Verificação de cima
             bool bloqueado = false;
-            for (int i = Posicao.x - 1; i > 0; i--)
+            for (int i = Posicao.x - 1; i >= 0; i--)
             {
                 Casa analisanda = casas[i][Posicao.y];
                 if (analisanda.condicao is Casa.Condicao.Ocupada || (this is not Rei && (analisanda.tipo is Casa.Tipo.Trono || analisanda.tipo is Casa.Tipo.Refugio)))
@@ -100,7 +100,7 @@ namespace VLAR.Comum
 
             //Verificação da esquerda
             bloqueado = false;
-            for (int i = Posicao.y - 1; i > 0; i--)
+            for (int i = Posicao.y - 1; i >= 0; i--)
             {
                 Casa analisanda = casas[Posicao.x][i];
                 if (analisanda.condicao is Casa.Condicao.Ocupada || (this is not Rei && (analisanda.tipo is Casa.Tipo.Trono || analisanda.tipo is Casa.Tipo.Refugio)))

@@ -150,7 +150,7 @@ namespace VLAR.Estruturas.Arvores
         public List<No<T>?> Filhos { get; set; }
         public List<List<No<T>>> caminhosPerpassantes = new();
         public long profundidade { get; set; }
-        public int? Peso { get; set; }
+        public double? Peso { get; set; }
         public bool Visitado { get; set; } = false;
         public bool eNoRuim { get; set; } = false;
         public bool eNoQueRecalculou { get; set; } = false;
